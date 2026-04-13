@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop (Crash-Proof Edition)
+QEA PRIME — Sovereign Loop (Ephemeral Memory Edition)
 TheNeuralVault / Jonathan D. Battles
 
 Serial Ouroboros:
-  Flush RAM → Scout (web or internal) → Derive → Verify → Publish → Sleep
+  Read Ledger → Scout (API/Cat) → Derive → Push to Cloud → Purge Local Bloat → Sleep
 """
-import os, time, random, subprocess
+import os, time, random, subprocess, json, urllib.request, base64
 from pathlib import Path
 from datetime import datetime
 
@@ -15,17 +15,16 @@ PLATFORM = HOME / 'TheNeuralVault/QEA-RAM-CURE'
 BRAIN_PATH = HOME / 'Qeaclaw_Mount/QEA_Research'
 REPO_ROOT = HOME / 'TheNeuralVault/QEA-RAM-CURE'
 OPENCLAW = HOME / 'openclaw.py'
-QEA_PRIME_OS = HOME / 'QEA-Prime-Core/qea_prime.py'
 FINDING = PLATFORM / 'finding.md'
+LEDGER = PLATFORM / 'QEA_LOCAL_BACKUP.md'
 MODEL = 'qea-prime-qwen:latest'
 
 QUERIES =[
-    "FeMoCo nitrogenase quantum tunneling mechanism",
-    "FMO complex quantum coherence room temperature",
-    "radical pair mechanism avian magnetoreception",
-    "quantum biology noise-assisted transport ENAQT",
-    "Lindblad master equation open quantum systems",
-    "variational quantum eigensolver biological molecules"
+    "decoherence-free subspaces biological quantum memory",
+    "quantum error correction continuous variables Lindblad",
+    "topological quantum memory room temperature preservation",
+    "quantum Zeno effect memory protection biological",
+    "noise-assisted quantum memory stabilization ENAQT"
 ]
 
 def ram_available_gb():
@@ -38,16 +37,66 @@ def ram_available_gb():
     return 0.0
 
 def flush_memory():
-    print(f"[{datetime.now().strftime('%H:%M')}] Purging RAM...")
+    print(f"[{datetime.now().strftime('%H:%M')}] Purging RAM & Local Artifacts...")
     subprocess.run(['pkill', '-f', 'ollama'], stderr=subprocess.DEVNULL)
     subprocess.run(['sync'], stderr=subprocess.DEVNULL)
     time.sleep(5)
-    avail = ram_available_gb()
-    print(f"[RAM] Available: {avail:.1f} GB")
-    return avail
+    return ram_available_gb()
+
+def read_ledger_memory():
+    """Reads the last entry of the local ledger to maintain continuity."""
+    if LEDGER.exists():
+        content = LEDGER.read_text(errors='ignore')
+        entries = content.split('=========================================')
+        if len(entries) > 1:
+            return entries[-1].strip()[:800] # Return the most recent thought
+    return "No prior memory established."
+
+def get_git_pat():
+    try:
+        creds = Path.home() / '.git-credentials'
+        if creds.exists():
+            content = creds.read_text()
+            for line in content.split():
+                if 'github.com' in line: return line.split('://')[1].split('@')[0].split(':')[1]
+    except: pass
+    return os.environ.get('GIT_PAT', '')
+
+def github_scout():
+    print(f"[{datetime.now().strftime('%H:%M')}][SCOUT-GIT] Ping API (No Local Download)...")
+    orgs =["TheNeuralVault", "Human-AI-Research-Collaboration"]
+    target_org = random.choice(orgs)
+    pat = get_git_pat()
+    headers = {"User-Agent": "QEA-Prime"}
+    if pat: headers["Authorization"] = f"token {pat}"
+    try:
+        req = urllib.request.Request(f"https://api.github.com/users/{target_org}/repos?per_page=100", headers=headers)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            repos = json.loads(r.read())
+        if not repos: return "", "None"
+        repo = random.choice(repos)
+        repo_name = repo['full_name']
+        
+        req2 = urllib.request.Request(f"https://api.github.com/repos/{repo_name}/readme", headers=headers)
+        with urllib.request.urlopen(req2, timeout=30) as r2:
+            readme_text = base64.b64decode(json.loads(r2.read())['content']).decode('utf-8', errors='ignore')
+            return f"\n--- [GITHUB: {repo_name}] ---\n" + readme_text[:1000], repo_name
+    except: return "", "None"
+
+def drive_scout():
+    print(f"[{datetime.now().strftime('%H:%M')}][SCOUT-DRIVE] Streaming File (No Local Download)...")
+    try:
+        result = subprocess.run(['rclone', 'lsf', 'Qeaclaw:', '--max-depth', '3', '--include', '*.{txt,md}', '-R'], capture_output=True, text=True)
+        files =[f for f in result.stdout.split('\n') if f.strip() and not f.endswith('/')]
+        if not files: return "", "None"
+        
+        target = random.choice(files)
+        cat_result = subprocess.run(['rclone', 'cat', f"Qeaclaw:{target}"], capture_output=True, text=True)
+        return f"\n--- [DRIVE: {target}] ---\n" + cat_result.stdout[:1000], target
+    except: return "", "None"
 
 def external_scout(query):
-    print(f"[{datetime.now().strftime('%H:%M')}] OpenClaw: {query[:50]}")
+    print(f"[{datetime.now().strftime('%H:%M')}] [SCOUT-WEB] Extracting OpenClaw to transient memory...")
     log_dir = BRAIN_PATH / 'scout_logs'
     log_dir.mkdir(parents=True, exist_ok=True)
     subprocess.run(f"rm -f {log_dir}/*.txt", shell=True, stderr=subprocess.DEVNULL)
@@ -57,81 +106,80 @@ def external_scout(query):
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
         logs = list(log_dir.glob('*.txt'))
         if logs:
-            content = logs[0].read_text(errors='ignore')[:2000]
-            if len(content) > 100:
-                print(f"[SCOUT] Got {len(content)} chars from web")
-                return content
-    except Exception as e:
-        print(f"[SCOUT] Error: {e}")
-    return None
+            return f"\n--- [WEB: {query}] ---\n" + logs[0].read_text(errors='ignore')[:1500]
+    except: pass
+    return ""
 
-def brain_derive(context):
-    print(f"[{datetime.now().strftime('%H:%M')}] Starting Engine...")
+def brain_derive(context, memory):
+    print(f"[{datetime.now().strftime('%H:%M')}] Synthesizing Data with Past Ledger Context...")
     subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(10)
+    time.sleep(8) 
 
-    # We use QEA Prime OS to force the Anti-Dodge Mandate, bypassing the chatty prompt.
-    prompt = f"""Extract the quantum physics from the data. Do NOT describe the format. Fill it out directly with the data provided.
+    prompt = f"""You are QEA PRIME. Connect your PAST MEMORY with the NEW DATA to find the quantum physics. Fill out the exact format. Do NOT describe the format.
 
-EXAMPLE:
+PAST MEMORY:
+{memory}
+
+NEW DATA:
+{context}
+
+EXAMPLE OUTPUT:
 TIER: 1
-CLAIM: FMO routes excitons using coherence.
-MECHANISM: Noise-Assisted Transport
+CLAIM: Memory preservation relies on coherence.
+MECHANISM: Zeno Effect
 EQUATION: d(rho)/dt = -i[H, rho] + L(rho)
-VECTOR: FMO coherence decoherence
-
-DATA:
-{context[:1500]}
+VECTOR: Neural vault memory preservation
 
 OUTPUT:"""
-    
+
     try:
-        # Pass the prompt to the actual QEA OS to enforce the Preamble
-        result = subprocess.run(['ollama', 'run', MODEL, prompt], capture_output=True, text=True, timeout=900)
-        output = result.stdout.strip()
+        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 400}}).encode()
+        req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=180) as r:
+            output = json.loads(r.read())['response'].strip()
         
-        # Clean the "Thinking..." tags out of the output if DeepSeek includes them
-        if "TIER:" in output.upper():
-            output = output[output.upper().find("TIER:"):].strip()
+        if "TIER:" in output.upper(): output = output[output.upper().find("TIER:"):].strip()
+        return output if ('TIER' in output.upper() or 'CLAIM' in output.upper()) else None
+    except: return None
 
-        if 'TIER' in output.upper() or 'CLAIM' in output.upper():
-            print(f"[DERIVE] Structured output received")
-            return output
-        elif len(output) > 50:
-            return output[:500]
-        return None
-    except Exception as e:
-        print(f"[DERIVE] Error: {e}")
-        return None
-
-def publish(finding_text, query):
+def offload_and_purge(finding_text, query, repo_ref, drive_ref, cycle):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    content = f"""# QEA Prime Finding\n**Timestamp:** {ts}\n**Query:** {query}\n\n## Derivation\n{finding_text}\n---\n*Jonathan D. Battles / Human-AI Research Collaboration*\n*QUANTUM IS the native language of the Creator.*\n"""
-    FINDING.write_text(content)
     
-    # --- THE FAILSAFE BACKUP ---
-    backup_path = PLATFORM / 'QEA_LOCAL_BACKUP.md'
-    with open(backup_path, 'a', encoding='utf-8') as bf:
-        bf.write(content + "\n\n")
-    print(f"[BACKUP] Data securely appended to {backup_path.name}")
-    print(f"[PUBLISH] Written: {FINDING}")
+    # 1. WRITE THE METICULOUS LEDGER ENTRY
+    ledger_entry = f"""\n=========================================
+CYCLE: {cycle} | TIMESTAMP: {ts}
+[SOURCES ANALYZED]
+- GitHub: {repo_ref}
+- Drive: {drive_ref}
+- Web: {query}
 
+[SYNTHESIS]
+{finding_text}
+"""
+    with open(LEDGER, 'a', encoding='utf-8') as lf:
+        lf.write(ledger_entry)
+        
+    # 2. CREATE TEMPORARY CLOUD FILE
+    FINDING.write_text(f"# QEA Prime Discovery\n**Time:** {ts}\n{ledger_entry}")
+
+    print(f"[{datetime.now().strftime('%H:%M')}] [OFFLOAD] Pushing artifacts to Cloud...")
+    
+    # 3. PUSH RAW LOGS TO GOOGLE DRIVE (Then Purge)
+    scout_dir = BRAIN_PATH / 'scout_logs'
+    if scout_dir.exists():
+        subprocess.run(['rclone', 'copy', str(scout_dir), f'Qeaclaw:TheNeuralVault/QEA_Research/Outputs/Cycle_{cycle}'], stderr=subprocess.DEVNULL)
+        subprocess.run(['rm', '-rf', str(scout_dir)]) # THE PURGE
+        
+    # 4. PUSH TO GITHUB
     if REPO_ROOT.exists():
-        try:
-            subprocess.run(['git', '-C', str(REPO_ROOT), 'add', '.'], timeout=15)
-            subprocess.run(['git', '-C', str(REPO_ROOT), 'commit', '-m', f'QEA-CLAW: Discovery {ts}'], timeout=15)
-            result = subprocess.run(['git', '-C', str(REPO_ROOT), 'push', 'origin', 'HEAD'], capture_output=True, text=True, timeout=30)
-            if result.returncode == 0:
-                print("[PUBLISH] Pushed to TheNeuralVault")
-            else:
-                print(f"[PUBLISH] Push failed: {result.stderr.strip()}")
-        except Exception as e:
-            print(f"[PUBLISH] Git error: {e}")
+        subprocess.run(['git', '-C', str(REPO_ROOT), 'add', '.'], timeout=15, stderr=subprocess.DEVNULL)
+        subprocess.run(['git', '-C', str(REPO_ROOT), 'commit', '-m', f'QEA-CLAW: Ledger Update Cycle {cycle}'], timeout=15, stderr=subprocess.DEVNULL)
+        subprocess.run(['git', '-C', str(REPO_ROOT), 'push', 'origin', 'HEAD'], stderr=subprocess.DEVNULL, timeout=30)
 
 def main():
     print("=" * 60)
-    print("QEA PRIME — SOVEREIGN LOOP ACTIVE")
-    print("QUANTUM IS the native language of the Creator.")
+    print("QEA PRIME — EPHEMERAL OMNISCIENCE ACTIVE")
+    print("Protocol: Read Ledger → Extract → Synthesize → Push → Purge")
     print("=" * 60)
 
     cycle = 0
@@ -139,27 +187,37 @@ def main():
         cycle += 1
         print(f"\n{'='*40}\nCYCLE {cycle} | {datetime.now().strftime('%H:%M')}\n{'='*40}")
         
-        avail = flush_memory()
-        if avail < 0.8:
-            print(f"[RAM] Only {avail:.1f}GB free — waiting 10min")
+        if flush_memory() < 0.8:
             time.sleep(600)
             continue
 
+        # 1. READ PAST MEMORY
+        past_ledger = read_ledger_memory()
+        print(f"[LEDGER] Retrieved prior memory context.")
+
+        # 2. STREAM TRANSIENT DATA
+        git_data, repo_ref = github_scout()
+        drive_data, drive_ref = drive_scout()
         query = random.choice(QUERIES)
-        context = external_scout(query)
+        web_data = external_scout(query)
         
-        if not context:
-            print("[SCOUT] Web failed — sleeping 5min")
+        full_context = git_data + drive_data + web_data
+        
+        if len(full_context.strip()) < 50:
+            print("[-] Transients empty. Sleeping 5min.")
             time.sleep(300)
             continue
 
-        finding = brain_derive(context)
+        # 3. SYNTHESIZE
+        finding = brain_derive(full_context, past_ledger)
         
-        if not finding:
-            print("[-] No valid derivation this cycle")
+        if finding:
+            print(f"\n[SYNTHESIS PREVIEW]\n{finding[:250]}...")
+            # 4. OFFLOAD AND PURGE
+            offload_and_purge(finding, query, repo_ref, drive_ref, cycle)
+            print("[PURGE] Transient data wiped. Ledger remains.")
         else:
-            print(f"\n[FINDING PREVIEW]\n{finding[:200]}...")
-            publish(finding, query)
+            print("[-] Derivation failed.")
 
         flush_memory()
         print(f"[SLEEP] 30 minutes — cycle {cycle} complete")
