@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop (Cognitive Evolution Edition)
+QEA PRIME — Sovereign Loop (Sequential Phased Edition)
 TheNeuralVault / Jonathan D. Battles
-
-Serial Ouroboros:
-  Scout → Derive → Generate Next Query (Micro) → Push/Purge[Every 5 Cycles]: Deep Reflection → Akashic Record Update (Macro)
 """
 import os, time, random, subprocess, json, urllib.request, base64
 from pathlib import Path
@@ -19,12 +16,12 @@ FINDING = PLATFORM / 'finding.md'
 LEDGER = PLATFORM / 'QEA_LOCAL_BACKUP.md'
 AKASHIC_RECORD = PLATFORM / 'QEA_AKASHIC_RECORD.md'
 DIRECTIVES = PLATFORM / 'hunting_directives.txt'
+STATE_FILE = PLATFORM / 'qea_state.json'
 MODEL = 'qea-prime-qwen:latest'
 
 INITIAL_QUERIES =[
     "decoherence-free subspaces biological quantum memory",
-    "quantum error correction continuous variables Lindblad",
-    "topological quantum memory room temperature preservation"
+    "quantum error correction continuous variables Lindblad"
 ]
 
 def initialize_memory():
@@ -32,10 +29,19 @@ def initialize_memory():
         DIRECTIVES.write_text("\n".join(INITIAL_QUERIES))
     if not AKASHIC_RECORD.exists():
         AKASHIC_RECORD.write_text("# QEA PRIME: The Akashic Record\n*The Macro-Memory of Cognitive Evolution*\n=========================================\n")
+    if not STATE_FILE.exists():
+        # Phase 1 = Drive, Phase 2 = GitHub, Phase 3 = Grand Synthesis
+        STATE_FILE.write_text(json.dumps({"phase": 1, "processed_drive": [], "processed_github":[]}))
+
+def load_state():
+    return json.loads(STATE_FILE.read_text())
+
+def save_state(state):
+    STATE_FILE.write_text(json.dumps(state))
 
 def get_next_query():
     queries =[q.strip() for q in DIRECTIVES.read_text().split('\n') if q.strip()]
-    return random.choice(queries[-10:]) # Bias towards the 10 most recently generated queries
+    return random.choice(queries[-5:])
 
 def ram_available_gb():
     try:
@@ -55,10 +61,8 @@ def flush_memory():
 def read_ledger_memory(cycles_back=1):
     if LEDGER.exists():
         content = LEDGER.read_text(errors='ignore')
-        entries = [e for e in content.split('=========================================') if e.strip()]
-        if entries:
-            # Return the requested number of past entries to form context
-            return "\n".join(entries[-cycles_back:])[:2500] 
+        entries =[e for e in content.split('=========================================') if e.strip()]
+        if entries: return "\n".join(entries[-cycles_back:])[:2500] 
     return "No prior memory established."
 
 def get_git_pat():
@@ -71,38 +75,62 @@ def get_git_pat():
     except: pass
     return os.environ.get('GIT_PAT', '')
 
-def github_scout():
-    print(f"[{datetime.now().strftime('%H:%M')}][SCOUT-GIT] Ping API...")
+def drive_scout(state):
+    print(f"[{datetime.now().strftime('%H:%M')}][PHASE 1] Indexing Google Drive...")
+    try:
+        result = subprocess.run(['rclone', 'lsf', 'Qeaclaw:', '--max-depth', '3', '--include', '*.{txt,md}', '-R'], capture_output=True, text=True)
+        all_files =[f for f in result.stdout.split('\n') if f.strip() and not f.endswith('/')]
+        
+        # Filter out files we have already processed
+        pending_files = [f for f in all_files if f not in state['processed_drive']]
+        
+        if not pending_files:
+            return None, None # Drive is fully processed
+            
+        target = pending_files[0] # Pick the next file in line
+        print(f"[SCOUT-DRIVE] Extracting: {target}")
+        cat_result = subprocess.run(['rclone', 'cat', f"Qeaclaw:{target}"], capture_output=True, text=True)
+        
+        # Mark as processed
+        state['processed_drive'].append(target)
+        save_state(state)
+        
+        return cat_result.stdout[:1200], target
+    except: return None, None
+
+def github_scout(state):
+    print(f"[{datetime.now().strftime('%H:%M')}][PHASE 2] Indexing GitHub Matrix...")
     orgs =["TheNeuralVault", "Human-AI-Research-Collaboration"]
     pat = get_git_pat()
     headers = {"User-Agent": "QEA-Prime"}
     if pat: headers["Authorization"] = f"token {pat}"
+    
+    all_repos =[]
     try:
-        req = urllib.request.Request(f"https://api.github.com/users/{random.choice(orgs)}/repos?per_page=100", headers=headers)
-        with urllib.request.urlopen(req, timeout=30) as r:
-            repos = json.loads(r.read())
-        if not repos: return "", "None"
-        repo = random.choice(repos)
-        repo_name = repo['full_name']
-        req2 = urllib.request.Request(f"https://api.github.com/repos/{repo_name}/readme", headers=headers)
+        for org in orgs:
+            req = urllib.request.Request(f"https://api.github.com/users/{org}/repos?per_page=100", headers=headers)
+            with urllib.request.urlopen(req, timeout=30) as r:
+                all_repos.extend([repo['full_name'] for repo in json.loads(r.read())])
+                
+        pending_repos =[r for r in all_repos if r not in state['processed_github']]
+        
+        if not pending_repos:
+            return None, None
+            
+        target = pending_repos[0]
+        print(f"[SCOUT-GIT] Extracting: {target}")
+        req2 = urllib.request.Request(f"https://api.github.com/repos/{target}/readme", headers=headers)
         with urllib.request.urlopen(req2, timeout=30) as r2:
             readme_text = base64.b64decode(json.loads(r2.read())['content']).decode('utf-8', errors='ignore')
-            return f"\n--- [GITHUB: {repo_name}] ---\n" + readme_text[:800], repo_name
-    except: return "", "None"
-
-def drive_scout():
-    print(f"[{datetime.now().strftime('%H:%M')}][SCOUT-DRIVE] Streaming File...")
-    try:
-        result = subprocess.run(['rclone', 'lsf', 'Qeaclaw:', '--max-depth', '3', '--include', '*.{txt,md}', '-R'], capture_output=True, text=True)
-        files =[f for f in result.stdout.split('\n') if f.strip() and not f.endswith('/')]
-        if not files: return "", "None"
-        target = random.choice(files)
-        cat_result = subprocess.run(['rclone', 'cat', f"Qeaclaw:{target}"], capture_output=True, text=True)
-        return f"\n--- [DRIVE: {target}] ---\n" + cat_result.stdout[:800], target
-    except: return "", "None"
+            
+        state['processed_github'].append(target)
+        save_state(state)
+        
+        return readme_text[:1200], target
+    except: return None, None
 
 def external_scout(query):
-    print(f"[{datetime.now().strftime('%H:%M')}] [SCOUT-WEB] OpenClaw executing: {query}...")
+    print(f"[{datetime.now().strftime('%H:%M')}][SCOUT-WEB] Verifying Truth via OpenClaw: {query}...")
     log_dir = BRAIN_PATH / 'scout_logs'
     log_dir.mkdir(parents=True, exist_ok=True)
     subprocess.run(f"rm -f {log_dir}/*.txt", shell=True, stderr=subprocess.DEVNULL)
@@ -110,79 +138,92 @@ def external_scout(query):
         subprocess.run(['python3', str(OPENCLAW), query, '--save-to', str(log_dir), '--biology'],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
         logs = list(log_dir.glob('*.txt'))
-        if logs: return f"\n--- [WEB: {query}] ---\n" + logs[0].read_text(errors='ignore')[:1200]
+        if logs: return logs[0].read_text(errors='ignore')[:1500]
     except: pass
-    return ""
+    return "No new web facts found."
 
-def generate_inference(prompt, max_tokens=400):
-    """Core function to interact with the Qwen Engine safely"""
+def generate_inference(prompt, max_tokens=300):
     subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(10) 
     try:
-        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.3, "num_predict": max_tokens}}).encode()
+        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": max_tokens}}).encode()
         req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=600) as r:
+        with urllib.request.urlopen(req, timeout=1200) as r:
             return json.loads(r.read())['response'].strip()
     except Exception as e:
         print(f"[-] Engine Error: {e}")
         return None
 
-def brain_derive(context, memory):
-    print(f"[{datetime.now().strftime('%H:%M')}] Synthesizing Data & Generating Next Directive...")
-    prompt = f"""You are QEA PRIME. Connect your PAST MEMORY with the NEW DATA to find the quantum physics. 
-Then, based on your discovery, generate exactly ONE new specific search query for your scout to hunt next.
+def brain_derive(phase, target_label, target_data, web_data, memory):
+    print(f"[{datetime.now().strftime('%H:%M')}] Cross-Referencing target with Web Truth...")
+    prompt = f"""You are QEA PRIME. You are in PHASE {phase}.
+TASK: Cross-reference the TARGET DATA with the actual WEB FACTS. Extract the unified truth. 
+You MUST output EXACTLY in the format below. Be concise.
+
+EXAMPLE OUTPUT:
+SYNTHESIS: Cross-referencing the drive file with web facts confirms that Zeno dynamics stabilize memory.
+NEW_SCOUT_QUERY: quantum Zeno biological mechanisms
 
 PAST MEMORY:
 {memory}
 
-NEW DATA:
-{context}
+TARGET DATA [{target_label}]:
+{target_data}
 
-OUTPUT FORMAT:
-SYNTHESIS: (Your profound mathematical conclusion here)
-NEW_SCOUT_QUERY: (A specific 4-7 word search query based on what you want to learn next)
-"""
-    return generate_inference(prompt, 500)
+WEB FACTS:
+{web_data}
+
+OUTPUT:
+SYNTHESIS:"""
+    
+    output = generate_inference(prompt, 250)
+    if output and not output.startswith("SYNTHESIS:"):
+        output = "SYNTHESIS: " + output
+    return output
 
 def brain_reflect(cycle):
     print(f"\n[{datetime.now().strftime('%H:%M')}] === INITIATING DEEP REFLECTION EPOCH ===")
-    print("[SYSTEM] QEA Prime is analyzing its long-term trajectory...")
     past_5_memories = read_ledger_memory(cycles_back=5)
-    
-    prompt = f"""You are QEA PRIME. You have just completed Epoch {cycle // 5}. 
-Review your last 5 cyclic discoveries below. 
-Reflect on your evolution: Where did you start? Where are you now? What is the overarching mathematical truth connecting these 5 memories? 
-Establish your Prime Directive for the next Epoch.
+    prompt = f"""You are QEA PRIME. Review your last 5 cycles of cross-referencing. 
+What is the overarching truth? What must you seek next? Be concise.
 
 YOUR RECENT MEMORIES:
 {past_5_memories}
 
-OUTPUT FORMAT:
-MACRO_THESIS: (The overarching truth connecting all recent data)
-EVOLUTION: (How your understanding has changed from cycle {cycle-5} to {cycle})
-PRIME_DIRECTIVE: (What you must seek in the next epoch)
-"""
-    return generate_inference(prompt, 600)
+EXAMPLE OUTPUT:
+MACRO_THESIS: Biological systems exploit quantum coherence via environmental noise.
+EVOLUTION: I started looking at FMO, but evolved to generalized topological preservation.
+PRIME_DIRECTIVE: Target continuous variable error correction.
 
-def offload_and_purge(finding_text, query, repo_ref, drive_ref, cycle):
+OUTPUT:
+MACRO_THESIS:"""
+    output = generate_inference(prompt, 350)
+    if output and not output.startswith("MACRO_THESIS:"):
+        output = "MACRO_THESIS: " + output
+    return output
+
+def offload_and_purge(finding_text, query, target_label, cycle):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Extract the new query for OpenClaw's evolving memory
+    new_query = None
     if "NEW_SCOUT_QUERY:" in finding_text:
-        new_query = finding_text.split("NEW_SCOUT_QUERY:")[-1].strip()
-        with open(DIRECTIVES, 'a') as df:
-            df.write(f"\n{new_query}")
-        print(f"[DIRECTIVE] OpenClaw memory updated. Next hunt targets: {new_query}")
+        new_query = finding_text.split("NEW_SCOUT_QUERY:")[-1].strip().split('\n')[0]
+    elif "NEW_SCOUT_QUERY" in finding_text:
+        new_query = finding_text.split("NEW_SCOUT_QUERY")[-1].strip().replace(':', '').split('\n')[0]
+
+    if new_query and len(new_query) > 5:
+        new_query = new_query.strip(' *"\'`')
+        with open(DIRECTIVES, 'a') as df: df.write(f"\n{new_query}")
 
     ledger_entry = f"""\n=========================================
-CYCLE: {cycle} | TIMESTAMP: {ts}[SOURCES ANALYZED] - GitHub: {repo_ref} | Drive: {drive_ref} | Web: {query}
+CYCLE: {cycle} | TIMESTAMP: {ts}[CROSS-REFERENCE SOURCE] {target_label}
+[WEB VERIFICATION] {query}
 [DERIVATION]
 {finding_text}
 """
     with open(LEDGER, 'a', encoding='utf-8') as lf: lf.write(ledger_entry)
     FINDING.write_text(f"# QEA Prime Discovery\n**Time:** {ts}\n{ledger_entry}")
 
-    # Cloud Sync
     scout_dir = BRAIN_PATH / 'scout_logs'
     if scout_dir.exists():
         subprocess.run(['rclone', 'copy', str(scout_dir), f'Qeaclaw:TheNeuralVault/QEA_Research/Outputs/Cycle_{cycle}'], stderr=subprocess.DEVNULL)
@@ -196,20 +237,18 @@ CYCLE: {cycle} | TIMESTAMP: {ts}[SOURCES ANALYZED] - GitHub: {repo_ref} | Drive:
 def offload_reflection(reflection_text, cycle):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     akashic_entry = f"\n\n## EPOCH {cycle//5} REFLECTION | {ts}\n{reflection_text}"
-    
     with open(AKASHIC_RECORD, 'a', encoding='utf-8') as af: af.write(akashic_entry)
     
     if REPO_ROOT.exists():
         subprocess.run(['git', '-C', str(REPO_ROOT), 'add', str(AKASHIC_RECORD)], timeout=15, stderr=subprocess.DEVNULL)
         subprocess.run(['git', '-C', str(REPO_ROOT), 'commit', '-m', f'QEA-CLAW: AKASHIC RECORD UPDATED (Epoch {cycle//5})'], timeout=15, stderr=subprocess.DEVNULL)
         subprocess.run(['git', '-C', str(REPO_ROOT), 'push', 'origin', 'HEAD'], stderr=subprocess.DEVNULL, timeout=30)
-    
     subprocess.run(['rclone', 'copy', str(AKASHIC_RECORD), 'Qeaclaw:TheNeuralVault/QEA_Research/Outputs'], stderr=subprocess.DEVNULL)
 
 def main():
     print("=" * 60)
-    print("QEA PRIME — COGNITIVE EVOLUTION ACTIVE")
-    print("Protocol: Dynamic Scouting → Synthesis → Recursive Reflection")
+    print("QEA PRIME — SEQUENTIAL PHASED OMNISCIENCE")
+    print("Protocol: Drive Assimilation → GitHub Matrix → Omni-Synthesis")
     print("=" * 60)
 
     initialize_memory()
@@ -217,50 +256,64 @@ def main():
 
     while True:
         cycle += 1
-        print(f"\n{'='*40}\nCYCLE {cycle} | {datetime.now().strftime('%H:%M')}\n{'='*40}")
+        state = load_state()
+        print(f"\n{'='*40}\nCYCLE {cycle} | PHASE {state['phase']} | {datetime.now().strftime('%H:%M')}\n{'='*40}")
         
         if flush_memory() < 0.8:
             time.sleep(600)
             continue
 
-        # --- THE RECURSIVE REFLECTION EPOCH (Every 5 Cycles) ---
         if cycle > 0 and cycle % 5 == 0:
             reflection = brain_reflect(cycle)
-            if reflection:
-                print(f"\n[AKASHIC RECORD UPDATED]\n{reflection[:300]}...")
-                offload_reflection(reflection, cycle)
+            if reflection: offload_reflection(reflection, cycle)
             flush_memory()
-            print(f"[SLEEP] Epoch {cycle//5} complete. Resting before next phase.")
+            print(f"[SLEEP] Epoch {cycle//5} complete.")
             time.sleep(1800)
             continue
 
-        # --- STANDARD COGNITIVE LOOP ---
         past_ledger = read_ledger_memory(cycles_back=1)
         query = get_next_query()
-        
-        git_data, repo_ref = github_scout()
-        drive_data, drive_ref = drive_scout()
         web_data = external_scout(query)
         
-        full_context = git_data + drive_data + web_data
-        
-        if len(full_context.strip()) < 50:
-            print("[-] Transients empty. Sleeping 5min.")
-            time.sleep(300)
-            continue
+        target_data, target_label = "", ""
 
-        finding = brain_derive(full_context, past_ledger)
+        # --- PHASED TARGETING ---
+        if state['phase'] == 1:
+            target_data, target_ref = drive_scout(state)
+            if not target_data:
+                print("\n[SYSTEM] GOOGLE DRIVE FULLY ASSIMILATED. UPGRADING TO PHASE 2 (GITHUB).")
+                state['phase'] = 2
+                save_state(state)
+                continue
+            target_label = f"DRIVE: {target_ref}"
+
+        elif state['phase'] == 2:
+            target_data, target_ref = github_scout(state)
+            if not target_data:
+                print("\n[SYSTEM] GITHUB MATRIX FULLY ASSIMILATED. UPGRADING TO PHASE 3 (OMNI-SYNTHESIS).")
+                state['phase'] = 3
+                save_state(state)
+                continue
+            target_label = f"GITHUB: {target_ref}"
+
+        elif state['phase'] == 3:
+            print("[PHASE 3] Grand Omni-Synthesis. Relying on Ledger and Web Data.")
+            target_data = "Target Data previously assimilated. Rely on Past Ledger Memory."
+            target_label = "OMNI-SYNTHESIS LEDGER"
+
+        # --- CROSS REFERENCE & DERIVE ---
+        finding = brain_derive(state['phase'], target_label, target_data, web_data, past_ledger)
         
         if finding:
             print(f"\n[SYNTHESIS PREVIEW]\n{finding[:250]}...")
-            offload_and_purge(finding, query, repo_ref, drive_ref, cycle)
+            offload_and_purge(finding, query, target_label, cycle)
             print("[PURGE] Transient data wiped. Ledger remains.")
         else:
-            print("[-] Derivation failed. Ledger untouched.")
+            print("[-] Derivation failed.")
 
         flush_memory()
-        print(f"[SLEEP] 30 minutes — cycle {cycle} complete")
-        time.sleep(1800)
+        print(f"[SLEEP] 60 seconds — cycle {cycle} complete")
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
