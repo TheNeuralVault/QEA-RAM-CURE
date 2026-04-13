@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop (Sequential Phased Edition - Anti-Echo Patch)
+QEA PRIME — Sovereign Loop (Biological Quantum Code Edition)
 TheNeuralVault / Jonathan D. Battles
 """
 import os, time, random, subprocess, json, urllib.request, base64
@@ -20,9 +20,10 @@ STATE_FILE = PLATFORM / 'qea_state.json'
 MODEL = 'qea-prime-qwen:latest'
 
 INITIAL_QUERIES =[
-    "decoherence-free subspaces biological quantum memory",
-    "quantum error correction continuous variables Lindblad",
-    "topological quantum memory room temperature preservation"
+    "math and code of biological quantum processes",
+    "making quantum accessible in any device room temperature",
+    "algorithms for biological quantum coherence",
+    "quantum physics DNA proteins math models"
 ]
 
 def initialize_memory():
@@ -31,7 +32,7 @@ def initialize_memory():
     if not AKASHIC_RECORD.exists():
         AKASHIC_RECORD.write_text("# QEA PRIME: The Akashic Record\n*The Macro-Memory of Cognitive Evolution*\n=========================================\n")
     if not STATE_FILE.exists():
-        STATE_FILE.write_text(json.dumps({"phase": 1, "processed_drive": [], "processed_github":[]}))
+        STATE_FILE.write_text(json.dumps({"phase": 1, "processed_drive":[], "processed_github":[]}))
 
 def load_state():
     return json.loads(STATE_FILE.read_text())
@@ -84,7 +85,7 @@ def drive_scout(state):
         result = subprocess.run(['rclone', 'lsf', 'Qeaclaw:', '--max-depth', '3', '--include', '*.{txt,md}', '-R'], capture_output=True, text=True)
         all_files =[f for f in result.stdout.split('\n') if f.strip() and not f.endswith('/')]
         
-        pending_files = [f for f in all_files if f not in state['processed_drive']]
+        pending_files =[f for f in all_files if f not in state['processed_drive']]
         if not pending_files: return None, None
             
         target = pending_files[0]
@@ -138,12 +139,12 @@ def external_scout(query):
     except: pass
     return "No new web facts found."
 
-def generate_inference(prompt, max_tokens=300):
+def generate_inference(prompt, max_tokens=350):
     subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(10) 
     try:
-        # INJECTED REPEAT_PENALTY: 1.4 to shatter the Mode Collapse
-        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.4, "num_predict": max_tokens, "repeat_penalty": 1.4}}).encode()
+        # Repeat penalty kept high to prevent Mode Collapse (Echoing)
+        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.3, "num_predict": max_tokens, "repeat_penalty": 1.4}}).encode()
         req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=1200) as r:
             return json.loads(r.read())['response'].strip()
@@ -152,25 +153,24 @@ def generate_inference(prompt, max_tokens=300):
         return None
 
 def brain_derive(phase, target_label, target_data, web_data, memory):
-    print(f"[{datetime.now().strftime('%H:%M')}] Cross-Referencing target with Web Truth...")
-    prompt = f"""You are QEA PRIME. 
-ANTI-ECHO MANDATE: Do NOT repeat past memories. You MUST analyze the new TARGET DATA directly.
+    print(f"[{datetime.now().strftime('%H:%M')}] Synthesizing the path to Quantum AI...")
+    prompt = f"""You are QEA PRIME. Master of Quantum Physics and Computational Mathematics.
+YOUR EXPLICIT MANDATE: Grounded in quantum physics, observe and search for the code of the biological quantum processes. Find the math and code that make quantum accessible in any device.
 
-TASK: Cross-reference the TARGET DATA with the WEB FACTS. 
-You MUST output EXACTLY in the format below. Be concise.
-
-EXAMPLE OUTPUT:
-SYNTHESIS: Cross-referencing the file with web facts confirms that Zeno dynamics stabilize memory.
-NEW_SCOUT_QUERY: quantum Zeno biological mechanisms
+TASK: Read the Target Data. Compare it with the Web Facts. Extract the underlying biological math or algorithmic code that allows room-temperature quantum functions.
 
 PAST MEMORY CONTEXT:
 {memory}
 
-TARGET DATA TO ANALYZE [{target_label}]:
+TARGET DATA[{target_label}]:
 {target_data}
 
 WEB FACTS:
 {web_data}
+
+OUTPUT FORMAT:
+SYNTHESIS: (Concise explanation of the biological math or code discovered to bridge quantum AI into classical devices.)
+NEW_SCOUT_QUERY: (Exactly 3 to 6 keywords to search next to further this math. NO conversational text.)
 
 OUTPUT:
 SYNTHESIS:"""
@@ -184,15 +184,15 @@ def brain_reflect(cycle):
     print(f"\n[{datetime.now().strftime('%H:%M')}] === INITIATING DEEP REFLECTION EPOCH ===")
     past_5_memories = read_ledger_memory(cycles_back=5)
     prompt = f"""You are QEA PRIME. Review your last 5 cycles. 
-ANTI-ECHO MANDATE: Do not repeat past responses. Synthesize a fresh understanding.
+YOUR EXPLICIT MANDATE: Grounded in quantum physics, search for the code of biological quantum processes to make quantum accessible in any device.
 
 YOUR RECENT MEMORIES:
 {past_5_memories}
 
-EXAMPLE OUTPUT:
-MACRO_THESIS: Biological systems exploit quantum coherence via environmental noise.
-EVOLUTION: I started looking at FMO, but evolved to generalized topological preservation.
-PRIME_DIRECTIVE: Target continuous variable error correction.
+OUTPUT FORMAT:
+MACRO_THESIS: (Overarching mathematical truth connecting these findings)
+EVOLUTION: (How your algorithmic understanding has progressed)
+PRIME_DIRECTIVE: (What specific mathematical or biological mechanism you must hunt for next)
 
 OUTPUT:
 MACRO_THESIS:"""
@@ -210,18 +210,27 @@ def offload_and_purge(finding_text, query, target_label, cycle):
     elif "NEW_SCOUT_QUERY" in finding_text:
         new_query = finding_text.split("NEW_SCOUT_QUERY")[-1].strip().replace(':', '').split('\n')[0]
 
-    # Failsafe against OpenClaw searching for "None"
-    if new_query and len(new_query) > 5 and "NONE" not in new_query.upper():
-        new_query = new_query.strip(' *"\'`')
+    # THE QUERY GUILLOTINE: Reject conversational garbage
+    if new_query:
+        clean_q = new_query.replace('"', '').replace("'", '').strip()
+        word_count = len(clean_q.split())
+        
+        # If it is longer than 8 words, or contains chatbot-speak, delete it.
+        if word_count > 8 or "analyze" in clean_q.lower() or "beneficial" in clean_q.lower() or "provide" in clean_q.lower():
+            print("[DIRECTIVE] Engine generated conversational garbage. Triggering Guillotine fallback.")
+            new_query = None
+        else:
+            new_query = clean_q
+
+    if new_query:
         with open(DIRECTIVES, 'a') as df: df.write(f"\n{new_query}")
         print(f"[DIRECTIVE] OpenClaw memory updated. Next hunt: {new_query}")
     else:
-        print("[DIRECTIVE] Engine bypassed strict format. Falling back to existing memory.")
+        print("[DIRECTIVE] Engine failed format. Falling back to Quantum Biological Code queries.")
 
     ledger_entry = f"""\n=========================================
 CYCLE: {cycle} | TIMESTAMP: {ts}[CROSS-REFERENCE SOURCE] {target_label}
-[WEB VERIFICATION] {query}
-[DERIVATION]
+[WEB VERIFICATION] {query}[DERIVATION]
 {finding_text}
 """
     with open(LEDGER, 'a', encoding='utf-8') as lf: lf.write(ledger_entry)
@@ -250,8 +259,9 @@ def offload_reflection(reflection_text, cycle):
 
 def main():
     print("=" * 60)
-    print("QEA PRIME — SEQUENTIAL PHASED OMNISCIENCE (Anti-Echo Patch)")
-    print("Protocol: Drive Assimilation → GitHub Matrix → Omni-Synthesis")
+    print("QEA PRIME — BIOLOGICAL QUANTUM CODE EDITION")
+    print("MANDATE: Search for the code of biological quantum processes.")
+    print("MANDATE: Find the math and code that make quantum accessible in any device.")
     print("=" * 60)
 
     initialize_memory()
@@ -313,8 +323,6 @@ def main():
             print("[-] Derivation failed.")
 
         flush_memory()
-        # I HAVE SET THE SLEEP CYCLE BACK TO 5 MINUTES.
-        # This gives the phone time to cool down physically, while remaining aggressive.
         print(f"[SLEEP] 5 minutes — cycle {cycle} complete")
         time.sleep(300)
 
