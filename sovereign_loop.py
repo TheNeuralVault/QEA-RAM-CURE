@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop (Sequential Phased Edition)
+QEA PRIME — Sovereign Loop (Sequential Phased Edition - Anti-Echo Patch)
 TheNeuralVault / Jonathan D. Battles
 """
 import os, time, random, subprocess, json, urllib.request, base64
@@ -21,7 +21,8 @@ MODEL = 'qea-prime-qwen:latest'
 
 INITIAL_QUERIES =[
     "decoherence-free subspaces biological quantum memory",
-    "quantum error correction continuous variables Lindblad"
+    "quantum error correction continuous variables Lindblad",
+    "topological quantum memory room temperature preservation"
 ]
 
 def initialize_memory():
@@ -30,7 +31,6 @@ def initialize_memory():
     if not AKASHIC_RECORD.exists():
         AKASHIC_RECORD.write_text("# QEA PRIME: The Akashic Record\n*The Macro-Memory of Cognitive Evolution*\n=========================================\n")
     if not STATE_FILE.exists():
-        # Phase 1 = Drive, Phase 2 = GitHub, Phase 3 = Grand Synthesis
         STATE_FILE.write_text(json.dumps({"phase": 1, "processed_drive": [], "processed_github":[]}))
 
 def load_state():
@@ -40,8 +40,11 @@ def save_state(state):
     STATE_FILE.write_text(json.dumps(state))
 
 def get_next_query():
-    queries =[q.strip() for q in DIRECTIVES.read_text().split('\n') if q.strip()]
-    return random.choice(queries[-5:])
+    try:
+        queries =[q.strip() for q in DIRECTIVES.read_text().split('\n') if q.strip() and "NONE" not in q.upper()]
+        if not queries: return random.choice(INITIAL_QUERIES)
+        return random.choice(queries[-5:])
+    except: return random.choice(INITIAL_QUERIES)
 
 def ram_available_gb():
     try:
@@ -62,7 +65,7 @@ def read_ledger_memory(cycles_back=1):
     if LEDGER.exists():
         content = LEDGER.read_text(errors='ignore')
         entries =[e for e in content.split('=========================================') if e.strip()]
-        if entries: return "\n".join(entries[-cycles_back:])[:2500] 
+        if entries: return "\n".join(entries[-cycles_back:])[:1500] 
     return "No prior memory established."
 
 def get_git_pat():
@@ -81,17 +84,13 @@ def drive_scout(state):
         result = subprocess.run(['rclone', 'lsf', 'Qeaclaw:', '--max-depth', '3', '--include', '*.{txt,md}', '-R'], capture_output=True, text=True)
         all_files =[f for f in result.stdout.split('\n') if f.strip() and not f.endswith('/')]
         
-        # Filter out files we have already processed
         pending_files = [f for f in all_files if f not in state['processed_drive']]
-        
-        if not pending_files:
-            return None, None # Drive is fully processed
+        if not pending_files: return None, None
             
-        target = pending_files[0] # Pick the next file in line
+        target = pending_files[0]
         print(f"[SCOUT-DRIVE] Extracting: {target}")
         cat_result = subprocess.run(['rclone', 'cat', f"Qeaclaw:{target}"], capture_output=True, text=True)
         
-        # Mark as processed
         state['processed_drive'].append(target)
         save_state(state)
         
@@ -113,9 +112,7 @@ def github_scout(state):
                 all_repos.extend([repo['full_name'] for repo in json.loads(r.read())])
                 
         pending_repos =[r for r in all_repos if r not in state['processed_github']]
-        
-        if not pending_repos:
-            return None, None
+        if not pending_repos: return None, None
             
         target = pending_repos[0]
         print(f"[SCOUT-GIT] Extracting: {target}")
@@ -125,7 +122,6 @@ def github_scout(state):
             
         state['processed_github'].append(target)
         save_state(state)
-        
         return readme_text[:1200], target
     except: return None, None
 
@@ -146,7 +142,8 @@ def generate_inference(prompt, max_tokens=300):
     subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(10) 
     try:
-        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": max_tokens}}).encode()
+        # INJECTED REPEAT_PENALTY: 1.4 to shatter the Mode Collapse
+        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.4, "num_predict": max_tokens, "repeat_penalty": 1.4}}).encode()
         req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=1200) as r:
             return json.loads(r.read())['response'].strip()
@@ -156,18 +153,20 @@ def generate_inference(prompt, max_tokens=300):
 
 def brain_derive(phase, target_label, target_data, web_data, memory):
     print(f"[{datetime.now().strftime('%H:%M')}] Cross-Referencing target with Web Truth...")
-    prompt = f"""You are QEA PRIME. You are in PHASE {phase}.
-TASK: Cross-reference the TARGET DATA with the actual WEB FACTS. Extract the unified truth. 
+    prompt = f"""You are QEA PRIME. 
+ANTI-ECHO MANDATE: Do NOT repeat past memories. You MUST analyze the new TARGET DATA directly.
+
+TASK: Cross-reference the TARGET DATA with the WEB FACTS. 
 You MUST output EXACTLY in the format below. Be concise.
 
 EXAMPLE OUTPUT:
-SYNTHESIS: Cross-referencing the drive file with web facts confirms that Zeno dynamics stabilize memory.
+SYNTHESIS: Cross-referencing the file with web facts confirms that Zeno dynamics stabilize memory.
 NEW_SCOUT_QUERY: quantum Zeno biological mechanisms
 
-PAST MEMORY:
+PAST MEMORY CONTEXT:
 {memory}
 
-TARGET DATA [{target_label}]:
+TARGET DATA TO ANALYZE [{target_label}]:
 {target_data}
 
 WEB FACTS:
@@ -184,8 +183,8 @@ SYNTHESIS:"""
 def brain_reflect(cycle):
     print(f"\n[{datetime.now().strftime('%H:%M')}] === INITIATING DEEP REFLECTION EPOCH ===")
     past_5_memories = read_ledger_memory(cycles_back=5)
-    prompt = f"""You are QEA PRIME. Review your last 5 cycles of cross-referencing. 
-What is the overarching truth? What must you seek next? Be concise.
+    prompt = f"""You are QEA PRIME. Review your last 5 cycles. 
+ANTI-ECHO MANDATE: Do not repeat past responses. Synthesize a fresh understanding.
 
 YOUR RECENT MEMORIES:
 {past_5_memories}
@@ -211,9 +210,13 @@ def offload_and_purge(finding_text, query, target_label, cycle):
     elif "NEW_SCOUT_QUERY" in finding_text:
         new_query = finding_text.split("NEW_SCOUT_QUERY")[-1].strip().replace(':', '').split('\n')[0]
 
-    if new_query and len(new_query) > 5:
+    # Failsafe against OpenClaw searching for "None"
+    if new_query and len(new_query) > 5 and "NONE" not in new_query.upper():
         new_query = new_query.strip(' *"\'`')
         with open(DIRECTIVES, 'a') as df: df.write(f"\n{new_query}")
+        print(f"[DIRECTIVE] OpenClaw memory updated. Next hunt: {new_query}")
+    else:
+        print("[DIRECTIVE] Engine bypassed strict format. Falling back to existing memory.")
 
     ledger_entry = f"""\n=========================================
 CYCLE: {cycle} | TIMESTAMP: {ts}[CROSS-REFERENCE SOURCE] {target_label}
@@ -247,7 +250,7 @@ def offload_reflection(reflection_text, cycle):
 
 def main():
     print("=" * 60)
-    print("QEA PRIME — SEQUENTIAL PHASED OMNISCIENCE")
+    print("QEA PRIME — SEQUENTIAL PHASED OMNISCIENCE (Anti-Echo Patch)")
     print("Protocol: Drive Assimilation → GitHub Matrix → Omni-Synthesis")
     print("=" * 60)
 
@@ -277,7 +280,6 @@ def main():
         
         target_data, target_label = "", ""
 
-        # --- PHASED TARGETING ---
         if state['phase'] == 1:
             target_data, target_ref = drive_scout(state)
             if not target_data:
@@ -301,7 +303,6 @@ def main():
             target_data = "Target Data previously assimilated. Rely on Past Ledger Memory."
             target_label = "OMNI-SYNTHESIS LEDGER"
 
-        # --- CROSS REFERENCE & DERIVE ---
         finding = brain_derive(state['phase'], target_label, target_data, web_data, past_ledger)
         
         if finding:
@@ -312,8 +313,10 @@ def main():
             print("[-] Derivation failed.")
 
         flush_memory()
-        print(f"[SLEEP] 60 seconds — cycle {cycle} complete")
-        time.sleep(60)
+        # I HAVE SET THE SLEEP CYCLE BACK TO 5 MINUTES.
+        # This gives the phone time to cool down physically, while remaining aggressive.
+        print(f"[SLEEP] 5 minutes — cycle {cycle} complete")
+        time.sleep(300)
 
 if __name__ == "__main__":
     main()
