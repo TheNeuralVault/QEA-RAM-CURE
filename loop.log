@@ -1,0 +1,5 @@
+nohup: ignoring input
+  File "/root/TheNeuralVault/QEA-RAM-CURE/sovereign_loop.py", line 250
+    global MODEL
+    ^^^^^^^^^^^^
+SyntaxError: name 'MODEL' is used prior to global declaration
