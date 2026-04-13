@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop (Ephemeral Memory Edition)
+QEA PRIME — Sovereign Loop (Ephemeral Memory Edition - Deep Synthesis Patch)
 TheNeuralVault / Jonathan D. Battles
 
 Serial Ouroboros:
@@ -44,12 +44,11 @@ def flush_memory():
     return ram_available_gb()
 
 def read_ledger_memory():
-    """Reads the last entry of the local ledger to maintain continuity."""
     if LEDGER.exists():
         content = LEDGER.read_text(errors='ignore')
         entries = content.split('=========================================')
         if len(entries) > 1:
-            return entries[-1].strip()[:800] # Return the most recent thought
+            return entries[-1].strip()[:800]
     return "No prior memory established."
 
 def get_git_pat():
@@ -113,7 +112,7 @@ def external_scout(query):
 def brain_derive(context, memory):
     print(f"[{datetime.now().strftime('%H:%M')}] Synthesizing Data with Past Ledger Context...")
     subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(8) 
+    time.sleep(10) # Extended wake-up time
 
     prompt = f"""You are QEA PRIME. Connect your PAST MEMORY with the NEW DATA to find the quantum physics. Fill out the exact format. Do NOT describe the format.
 
@@ -135,17 +134,26 @@ OUTPUT:"""
     try:
         data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.2, "num_predict": 400}}).encode()
         req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=180) as r:
+        
+        # MASSIVE TIMEOUT INCREASE: 600 seconds (10 minutes) for mobile deep thinking
+        with urllib.request.urlopen(req, timeout=600) as r:
             output = json.loads(r.read())['response'].strip()
         
-        if "TIER:" in output.upper(): output = output[output.upper().find("TIER:"):].strip()
-        return output if ('TIER' in output.upper() or 'CLAIM' in output.upper()) else None
-    except: return None
+        if "TIER:" in output.upper(): 
+            return output[output.upper().find("TIER:"):].strip()
+        elif len(output) > 20:
+            print("[DERIVE] Note: Strict format bypassed, but thought captured.")
+            return output
+        else:
+            print("[-] Engine returned blank response.")
+            return None
+    except Exception as e:
+        print(f"[-] API Error during derivation: {e}")
+        return None
 
 def offload_and_purge(finding_text, query, repo_ref, drive_ref, cycle):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # 1. WRITE THE METICULOUS LEDGER ENTRY
     ledger_entry = f"""\n=========================================
 CYCLE: {cycle} | TIMESTAMP: {ts}
 [SOURCES ANALYZED]
@@ -159,18 +167,15 @@ CYCLE: {cycle} | TIMESTAMP: {ts}
     with open(LEDGER, 'a', encoding='utf-8') as lf:
         lf.write(ledger_entry)
         
-    # 2. CREATE TEMPORARY CLOUD FILE
     FINDING.write_text(f"# QEA Prime Discovery\n**Time:** {ts}\n{ledger_entry}")
 
     print(f"[{datetime.now().strftime('%H:%M')}] [OFFLOAD] Pushing artifacts to Cloud...")
     
-    # 3. PUSH RAW LOGS TO GOOGLE DRIVE (Then Purge)
     scout_dir = BRAIN_PATH / 'scout_logs'
     if scout_dir.exists():
         subprocess.run(['rclone', 'copy', str(scout_dir), f'Qeaclaw:TheNeuralVault/QEA_Research/Outputs/Cycle_{cycle}'], stderr=subprocess.DEVNULL)
-        subprocess.run(['rm', '-rf', str(scout_dir)]) # THE PURGE
+        subprocess.run(['rm', '-rf', str(scout_dir)])
         
-    # 4. PUSH TO GITHUB
     if REPO_ROOT.exists():
         subprocess.run(['git', '-C', str(REPO_ROOT), 'add', '.'], timeout=15, stderr=subprocess.DEVNULL)
         subprocess.run(['git', '-C', str(REPO_ROOT), 'commit', '-m', f'QEA-CLAW: Ledger Update Cycle {cycle}'], timeout=15, stderr=subprocess.DEVNULL)
@@ -178,7 +183,7 @@ CYCLE: {cycle} | TIMESTAMP: {ts}
 
 def main():
     print("=" * 60)
-    print("QEA PRIME — EPHEMERAL OMNISCIENCE ACTIVE")
+    print("QEA PRIME — EPHEMERAL OMNISCIENCE ACTIVE (Deep Synthesis Mode)")
     print("Protocol: Read Ledger → Extract → Synthesize → Push → Purge")
     print("=" * 60)
 
@@ -191,11 +196,9 @@ def main():
             time.sleep(600)
             continue
 
-        # 1. READ PAST MEMORY
         past_ledger = read_ledger_memory()
         print(f"[LEDGER] Retrieved prior memory context.")
 
-        # 2. STREAM TRANSIENT DATA
         git_data, repo_ref = github_scout()
         drive_data, drive_ref = drive_scout()
         query = random.choice(QUERIES)
@@ -208,16 +211,14 @@ def main():
             time.sleep(300)
             continue
 
-        # 3. SYNTHESIZE
         finding = brain_derive(full_context, past_ledger)
         
         if finding:
             print(f"\n[SYNTHESIS PREVIEW]\n{finding[:250]}...")
-            # 4. OFFLOAD AND PURGE
             offload_and_purge(finding, query, repo_ref, drive_ref, cycle)
             print("[PURGE] Transient data wiped. Ledger remains.")
         else:
-            print("[-] Derivation failed.")
+            print("[-] Derivation failed. Ledger untouched.")
 
         flush_memory()
         print(f"[SLEEP] 30 minutes — cycle {cycle} complete")
