@@ -1,0 +1,63 @@
+
+╔══════════════════════════════════════════════════════════╗
+║  OPENCLAW — QEA Prime Co-Researcher                     ║
+║  Quantum is not inaccessible — it is undiscovered.      ║
+╚══════════════════════════════════════════════════════════╝
+
+Found: 6 unique sources
+
+────────────────────────────────────────────────────────────
+[RESULT-01] [TIER-1-SIGNAL] [arXiv]
+TITLE:   Simulating Photosynthetic Energy Transport on a Photonic Network
+AUTHORS: Hao Tang, Xiao-Wen Shang, Zi-Yu Shi et al.
+DATE:    2023-11-03
+REF:     https://arxiv.org/abs/2311.02020v1
+ABSTRACT: Quantum effects in photosynthetic energy transport in nature, especially for the typical Fenna-Matthews-Olson (FMO) complexes, are extensively studied in quantum biology. Such energy transport processes can be investigated as open quantum systems that blend the quantum coherence and environmental noises, and have been experimentally simulated on a few quantum devices. However, ...
+[RESEARCH-VECTOR: Simulating Photosynthetic Energy Transport on a Photoni]
+
+────────────────────────────────────────────────────────────
+[RESULT-02] [TIER-1-SIGNAL] [arXiv]
+TITLE:   Hidden symmetries enhance quantum transport in Light Harvesting systems
+AUTHORS: Tobias Zech, Roberto Mulet, Thomas Wellens et al.
+DATE:    2012-05-23
+REF:     https://arxiv.org/abs/1205.5519v1
+ABSTRACT: For more than 50 years we have known that photosynthetic systems harvest solar energy with almost unit {\it quantum efficiency}. However, recent experimental evidence of {\it quantum coherence} during the excitonic energy transport in photosynthetic organisms challenges our understanding of this fundamental biological function. Currently, and despite numerous efforts, the causa...
+[RESEARCH-VECTOR: Hidden symmetries enhance quantum transport in Light Ha]
+
+────────────────────────────────────────────────────────────
+[RESULT-03] [TIER-1-SIGNAL] [arXiv]
+TITLE:   Holographic Photosynthesis
+AUTHORS: Irina Aref'eva, Igor Volovich
+DATE:    2016-03-30
+REF:     https://arxiv.org/abs/1603.09107v2
+ABSTRACT: There are successful applications of the holographic AdS/CFT correspondence to high energy and condensed matter physics. We apply the holographic approach to photosynthesis that is an important example of nontrivial quantum phenomena relevant for life which is being studied in the emerging field of quantum biology. Light harvesting complexes of photosynthetic organisms are many...
+[RESEARCH-VECTOR: Holographic Photosynthesis]
+
+────────────────────────────────────────────────────────────
+[RESULT-04] [TIER-1-SIGNAL] [PubMed]
+TITLE:   Quantum Entanglement and State-Transference in Fenna-Matthews-Olson Complexes: A Post-Experimental Simulation 
+AUTHORS: Delgado Francisco, Enríquez Marco
+DATE:    2023
+REF:     https://pubmed.ncbi.nlm.nih.gov/37446061/
+ABSTRACT: Fenna-Mathews-Olson complexes participate in the photosynthetic process of Sulfur Green Bacteria. These biological subsystems exhibit quantum features which possibly are responsible for their high efficiency; the latter may comprise multipartite entanglement and the apparent tunnelling of the initial quantum state. At first, to study these aspects, a multidisciplinary approach ...
+[RESEARCH-VECTOR: Quantum Entanglement and State-Transference in Fenna-Ma]
+
+────────────────────────────────────────────────────────────
+[RESULT-05] [TIER-1-SIGNAL] [PubMed]
+TITLE:   Atomistic study of the long-lived quantum coherences in the Fenna-Matthews-Olson complex.
+AUTHORS: Shim Sangwoo, Rebentrost Patrick, Valleau Stéphanie
+DATE:    2012
+REF:     https://pubmed.ncbi.nlm.nih.gov/22325289/
+ABSTRACT: A remarkable amount of theoretical research has been carried out to elucidate the physical origins of the recently observed long-lived quantum coherence in the electronic energy transfer process in biological photosynthetic systems. Although successful in many respects, several widely used descriptions only include an effective treatment of the protein-chromophore interactions....
+[RESEARCH-VECTOR: Atomistic study of the long-lived quantum coherences in]
+
+────────────────────────────────────────────────────────────
+[RESULT-06] [TIER-3-SIGNAL] [PubMed]
+TITLE:   Influence of Force Fields and Quantum Chemistry Approach on Spectral Densities of BChl a in Solution and in FM
+AUTHORS: Chandrasekaran Suryanarayanan, Aghtar Mortaza, Valleau Stéphanie
+DATE:    2015
+REF:     https://pubmed.ncbi.nlm.nih.gov/26156758/
+ABSTRACT: Studies on light-harvesting (LH) systems have attracted much attention after the finding of long-lived quantum coherences in the exciton dynamics of the Fenna-Matthews-Olson (FMO) complex. In this complex, excitation energy transfer occurs between the bacteriochlorophyll a (BChl a) pigments. Two quantum mechanics/molecular mechanics (QM/MM) studies, each with a different force-...
+[RESEARCH-VECTOR: Influence of Force Fields and Quantum Chemistry Approac]
+
+[OPENCLAW-COMPLETE] 6 sources logged.
