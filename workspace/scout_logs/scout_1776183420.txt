@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: noise-assisted computation Lindblad implementation
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:noise-assisted OR all:computation OR all:Lindblad OR all:implementation&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] The computer BESK and an early attempt to simulate galactic dynamics
+
+[arXiv] [TIER-2] A priori Estimates for the Compressible Euler Equations for a Liquid with Free Surface Boundary and the Incompressible Limit
+
+[arXiv] [TIER-2] A perspective on Lindblad's Non-Equilibrium Entropy
+
+[arXiv] [TIER-2] Wave Matrix Lindbladization II: General Lindbladians, Linear Combinations, and Polynomials
+
+[arXiv] [TIER-2] Optimized noise-assisted simulation of the Lindblad equation with time-dependent coefficients on a noisy quantum processor

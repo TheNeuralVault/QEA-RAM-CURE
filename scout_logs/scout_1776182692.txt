@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: [photosystem II coherence]
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:[photosystem OR all:II OR all:coherence]&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] Measurement of the integrated luminosity of the Phase 2 data of the Belle II experiment
+
+[arXiv] [TIER-2] The Belle II Experiment at SuperKEKB -- Input to the European Particle Physics Strategy
+
+[arXiv] [TIER-2] Observation of Coherence in the Photosystem II Reaction Center
+
+[arXiv] [TIER-2] Measurement of the Mass Difference m(D_s^+) - m(D^+) at CDF II
+
+[arXiv] [TIER-2] Long-range coherent energy transport in Photosystem II

@@ -1,0 +1,1 @@
+Goal: Extract and validate quantum code for quantum coherence photosynthesis C++ implementation

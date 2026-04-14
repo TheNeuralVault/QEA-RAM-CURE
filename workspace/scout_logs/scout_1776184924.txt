@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: quantum biology decoherence model
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:quantum OR all:biology OR all:decoherence OR all:model&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions
+
+[arXiv] [TIER-2] Exact Master Equation and Non-Markovian Decoherence for Quantum Dot Quantum Computing
+
+[arXiv] [TIER-2] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit
+
+[arXiv] [TIER-2] From Physics to Biology by Extending Criticality and Symmetry Breakings
+
+[arXiv] [TIER-2] Partial Decoherence of Histories and the Diosi Test

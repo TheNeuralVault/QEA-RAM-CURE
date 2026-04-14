@@ -1,0 +1,29 @@
+OPENCLAW RESEARCH REPORT: dark state memory biological quantum code
+========================================
+
+[SemanticScholar] [TIER-2] Telecom-compatible cross-band quantum memory via dual photon modes dark-state polaritons
+ABSTRACT: Quantum memories are essential components of quantum networks, enabling synchronization, quantum repeaters, and long-distance entanglement distribution. Most ensemble-based realizations rely on dark-s...
+
+[SemanticScholar] [TIER-2] Suppression of dark-state polariton collapses in a cold-atom quantum memory
+ABSTRACT: We observe dark-state polariton collapses and revivals in a quantum memory based on electromagnetically induced transparency on a cloud of cold cesium atoms in a magnetic field. Using $\sigma^+$ polar...
+
+[SemanticScholar] [TIER-2] Generation and coherent control of dark-state spatial modes.
+ABSTRACT: The generation and dynamic control of the spatial mode of the dark-state polarization using electromagnetically induced transparency are theoretically investigated. We demonstrate that a combination o...
+
+[SemanticScholar] [TIER-2] Extending the Quantum Memory Matrix to Dark Energy: Residual Vacuum Imprint and Slow-Roll Entropy Fields
+ABSTRACT: We extend the Quantum Memory Matrix (QMM) framework—previously shown to unify gauge interactions and reproduce cold dark matter phenomenology—to account for the observed late-time cosmic acceleration....
+
+[SemanticScholar] [TIER-2] The π–π architectures reveal a hidden quantum code linking aromaticity to light interaction
+ABSTRACT: Bioinformatics models illustrate interactions among aromatic rings. Aromatic molecules and groups exist in multiple systems, ranging from biological substances to materials. However, the nature of the...
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:dark OR all:state OR all:memory OR all:biological OR all:quantum OR all:code&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] The Dark Energy Survey
+
+[arXiv] [TIER-2] Large Synoptic Survey Telescope: Dark Energy Science Collaboration
+
+[arXiv] [TIER-2] The physical language of molecular codes: A rate-distortion approach to the evolution and emergence of biological codes
+
+[arXiv] [TIER-2] Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms
+
+[arXiv] [TIER-2] Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph

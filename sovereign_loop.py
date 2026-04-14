@@ -1,176 +1,123 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop v2.3 (High-Transparency)
-Fixes: rclone hanging (added timeouts), API reporting, verbose drive logging.
+QEA PRIME v4.0 — THE ORCHESTRATED QUANTUM LAB
+Orchestrator: OpenClaw Multi-Agent Supervisor Pattern
+Focus: Self-Correcting Discovery Loop
 """
-import os, time, random, subprocess, json, urllib.request, base64
+import os, time, subprocess, json, random
 from pathlib import Path
 from datetime import datetime
 
-# --- ASSET LOCATION ---
-HOME = Path.home()
+# --- PATHS ---
 PLATFORM = Path(__file__).parent.resolve()
+WORKSPACE = PLATFORM / 'workspace'
+LEDGER = PLATFORM / 'QEA_LOCAL_BACKUP.md'
+DIRECTIVES = PLATFORM / 'hunting_directives.txt'
+API_KEY = os.environ.get('GITHUB_MODELS_API_KEY', '')
 
-def find_asset(name):
-    for path in HOME.rglob(name):
-        return path
-    return None
+# --- AGENT WRAPPERS ---
 
-OPENCLAW = find_asset("openclaw.py") or (HOME / "openclaw.py")
-RCLONE_CONF = find_asset("rclone.conf")
-
-TOOLS_DIR    = PLATFORM / 'tools'
-SCOUT_LOGS   = PLATFORM / 'scout_logs'
-CATALOG_FILE = PLATFORM / 'library_index.md'
-LEDGER       = PLATFORM / 'QEA_LOCAL_BACKUP.md'
-STATE_FILE   = PLATFORM / 'qea_state.json'
-DIRECTIVES   = PLATFORM / 'hunting_directives.txt'
-
-API_URL      = "https://models.inference.ai.azure.com/chat/completions"
-MODEL_REMOTE = "gpt-4o" 
-API_KEY      = os.environ.get('GITHUB_MODELS_API_KEY', '')
-
-# --- INFRASTRUCTURE ---
-
-def check_foundations():
-    print("="*45)
-    print("QEA PRIME v2.3 — INFRASTRUCTURE REPORT")
-    print(f"API KEY: {'VALID' if len(API_KEY) > 10 else 'MISSING'}")
-    print(f"OPENCLAW: {'READY' if OPENCLAW.exists() else 'NOT FOUND'}")
-    print(f"RCLONE: {'READY' if RCLONE_CONF else 'USING DEFAULT'}")
-    print("="*45)
-    for d in [TOOLS_DIR, SCOUT_LOGS]: d.mkdir(exist_ok=True)
-
-def run_rclone(args, capture_text=True, timeout=45):
-    """Executes rclone with a strict timeout to prevent hanging."""
-    cmd = ['rclone']
-    if RCLONE_CONF: cmd.extend(['--config', str(RCLONE_CONF)])
-    cmd.extend(args)
+def call_agent(agent_name, prompt, context=""):
+    """
+    Simulates an OpenClaw sessions_send call to a specific agent.
+    In a full OpenClaw setup, this would be handled by the Gateway.
+    """
+    print(f"[@{agent_name}] Processing task...")
     
-    try:
-        res = subprocess.run(cmd, capture_output=True, timeout=timeout)
-        if capture_text:
-            return res.stdout.decode('utf-8', errors='ignore'), res.returncode
-        return res.stdout, res.returncode
-    except subprocess.TimeoutExpired:
-        print(f"[TIMEOUT] Rclone timed out after {timeout}s")
-        return b"" if not capture_text else "", 1
-    except Exception as e:
-        print(f"[ERROR] Rclone failed: {e}")
-        return b"" if not capture_text else "", 1
-
-# --- SCOUTING ---
-
-def drive_scout():
-    print("[DRIVE] Checking remote archives...")
-    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"processed": []}
+    # System Prompts per Agent
+    souls = {
+        "supervisor": (PLATFORM / "agents/supervisor/SOUL.md").read_text(),
+        "architect":  (PLATFORM / "agents/architect/SOUL.md").read_text(),
+        "validator":  (PLATFORM / "agents/validator/SOUL.md").read_text()
+    }
     
-    # List files
-    files_txt, code = run_rclone(['lsf', 'Qeaclaw:', '--max-depth', '2', '--include', '*.{txt,md,py}'])
-    if code != 0: return None, "Remote Unreachable"
-    
-    files = [f for f in files_txt.split('\n') if f.strip() and f not in state.get('processed', [])]
-    if files:
-        target = files[0]
-        print(f"[DRIVE] Downloading: {target} ...")
-        content_bytes, code = run_rclone(['cat', f'Qeaclaw:{target}'], capture_text=False)
-        
-        if code == 0:
-            content = content_bytes.decode('utf-8', errors='ignore')
-            state.setdefault('processed', []).append(target)
-            STATE_FILE.write_text(json.dumps(state))
-            print(f"[DRIVE] Successfully read {len(content)} characters.")
-            return content[:3500], target
-        else:
-            print(f"[DRIVE] Failed to download {target}.")
-    return None, "No new documents found."
-
-def openclaw_scout():
-    query = "quantum biology mechanisms FMO photosynthesis"
-    if DIRECTIVES.exists():
-        lines = [l.strip().strip('[]" ') for l in DIRECTIVES.read_text().split('\n') if l.strip()]
-        if lines: query = random.choice(lines)
-    
-    print(f"[OPENCLAW] Hunting: {query}")
-    if not OPENCLAW.exists(): return "", "Missing Scout"
-    
-    for f in SCOUT_LOGS.glob("*.txt"): f.unlink()
-    try:
-        subprocess.run(['python3', str(OPENCLAW), query, '--save-to', str(SCOUT_LOGS), '--biology'],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
-        logs = list(SCOUT_LOGS.glob('*.txt'))
-        if logs:
-            return logs[0].read_text(errors='ignore')[:5000], query
-    except Exception as e:
-        print(f"[OPENCLAW] Search failed: {e}")
-    return "", query
-
-# --- INTELLIGENCE ---
-
-def derive_quantum(context):
-    if not API_KEY: return "[ERROR] No Key"
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     payload = {
-        "model": MODEL_REMOTE,
+        "model": "gpt-4o",
         "messages": [
-            {"role": "system", "content": "YOU ARE QEA PRIME. ANALYZE. Tag #TOOL. Explain WHO/WHAT/WHY/WHERE."},
-            {"role": "user", "content": context}
+            {"role": "system", "content": souls.get(agent_name, "You are a QEA Specialist.")},
+            {"role": "user", "content": f"CONTEXT:\n{context}\n\nTASK:\n{prompt}"}
         ], "temperature": 0.1
     }
+    
     try:
-        req = urllib.request.Request(API_URL, data=json.dumps(payload).encode(), headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=60) as r:
+        url = "https://models.inference.ai.azure.com/chat/completions"
+        req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=90) as r:
             res = json.loads(r.read())
             return res['choices'][0]['message']['content']
-    except Exception as e: return f"[ERROR] {e}"
+    except Exception as e:
+        return f"[ERROR] Agent communication failed: {e}"
 
-# --- MAIN ---
+import urllib.request
+
+# --- THE ORCHESTRATION LOOP ---
+
+def run_orchestrated_cycle(cycle):
+    print(f"\n{'='*60}\nORCHESTRATED CYCLE {cycle} | {datetime.now().strftime('%H:%M:%S')}\n{'='*60}")
+    
+    # 1. SUPERVISOR: Define the Goal
+    query = random.choice(open(DIRECTIVES).readlines()).strip() if DIRECTIVES.exists() else "FMO coherence 300K"
+    (WORKSPACE / "goal.md").write_text(f"Goal: Extract and validate quantum code for {query}")
+    
+    # 2. SCOUT (OpenClaw): Gather Truth Data
+    print("[SCOUT] Engaging global research hunt...")
+    scout_logs = WORKSPACE / 'scout_logs'
+    scout_logs.mkdir(exist_ok=True)
+    subprocess.run(['python3', '/root/openclaw.py', query, '--save-to', str(scout_logs), '--biology'], 
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    logs = list(scout_logs.glob('*.txt'))
+    research_data = logs[-1].read_text(errors='ignore') if logs else "No data."
+    
+    # 3. ARCHITECT: Build the Code
+    architect_output = call_agent("architect", f"Build the quantum simulation code for: {query}", research_data)
+    
+    # 4. VALIDATOR: Review for Integrity
+    print("[VALIDATOR] Verifying physical accuracy...")
+    validation_report = call_agent("validator", "Review the following code for TIER-1 physical accuracy and executable integrity.", architect_output)
+    
+    if "REJECT" in validation_report.upper():
+        print("[!] BUILD REJECTED BY VALIDATOR. Retrying in next cycle.")
+        return False
+
+    # 5. SUPERVISOR: Final Synthesis & Archiving
+    print("[SUPERVISOR] Build approved. Archiving to Library...")
+    final_entry = call_agent("supervisor", "Synthesize the approved research and code into a final Ledger entry. Include Who/What/Why/Where.", f"RESEARCH: {research_data}\n\nCODE: {architect_output}\n\nVALIDATION: {validation_report}")
+    
+    # Final Persistence
+    with open(LEDGER, 'a') as f:
+        f.write(f"\n### CYCLE {cycle} | {datetime.now().strftime('%Y-%m-%d')}\n{final_entry}\n---\n")
+    
+    # Save tool if it exists
+    if "```python" in architect_output:
+        try:
+            code = architect_output.split("```python")[1].split("```")[0].strip()
+            tool_name = f"gen4_tool_{cycle}.py"
+            (PLATFORM / 'tools' / tool_name).write_text(code)
+            print(f"[SUCCESS] Next-Gen Tool Archived: {tool_name}")
+        except: pass
+
+    return True
 
 def main():
-    check_foundations()
     if not API_KEY:
-        print("[CRITICAL] API KEY is missing. Run: export GITHUB_MODELS_API_KEY=your_key")
+        print("[CRITICAL] API KEY MISSING.")
         return
-
+    
     cycle = 0
     while True:
         cycle += 1
-        print(f"\n--- CYCLE {cycle} | {datetime.now().strftime('%H:%M')} ---")
+        success = run_orchestrated_cycle(cycle)
         
-        drive_data, drive_info = drive_scout()
-        web_data, web_query = openclaw_scout()
+        # 5-Cycle Cloud Push (Architectural Redundancy)
+        if cycle % 5 == 0:
+            print("[CLOUD] Pushing workspace to GitHub/Drive...")
+            subprocess.run(['git', 'add', '.'], cwd=PLATFORM)
+            subprocess.run(['git', 'commit', '-m', f'Next-Gen Orchestration Cycle {cycle}'], cwd=PLATFORM)
+            subprocess.run(['git', 'push', 'origin', 'HEAD'], cwd=PLATFORM)
         
-        if not drive_data and not web_data:
-            print("[WARN] No data gathered. Waiting for next cycle.")
-        else:
-            print("[GPT-4o] Synthesizing Research...")
-            context = f"LOCAL_DATA: {drive_data}\n\nWEB_DATA: {web_data}"
-            discovery = derive_quantum(context)
-            
-            if discovery and "[ERROR]" not in discovery:
-                with open(LEDGER, 'a') as f:
-                    f.write(f"\n### Cycle {cycle} | {datetime.now().strftime('%Y-%m-%d')}\n{discovery}\n---\n")
-                
-                if "#TOOL" in discovery and "```python" in discovery:
-                    try:
-                        code = discovery.split("```python")[1].split("```")[0].strip()
-                        tool_name = f"tool_{cycle}_{int(time.time())}.py"
-                        (TOOLS_DIR / tool_name).write_text(code)
-                        print(f"[SUCCESS] Tool {tool_name} archived.")
-                    except: pass
-                
-                # Cloud Sync
-                try:
-                    subprocess.run(['git', 'add', '.'], cwd=PLATFORM)
-                    subprocess.run(['git', 'commit', '-m', f'Discovery {cycle}'], cwd=PLATFORM)
-                    subprocess.run(['git', 'push', 'origin', 'HEAD'], cwd=PLATFORM)
-                    run_rclone(['copy', str(PLATFORM), 'Qeaclaw:TheNeuralVault/QEA-RAM-CURE', '--exclude', 'scout_logs/**'], capture_text=False)
-                    print("[SYNC] Cloud Synchronized.")
-                except: print("[SYNC] Cloud Push Deferred.")
-            else:
-                print(f"[FAIL] {discovery}")
-
-        print("[WAIT] 15 min cooldown...")
+        print("[WAIT] Cooldown (15m)...")
         time.sleep(900)
 
 if __name__ == "__main__":
