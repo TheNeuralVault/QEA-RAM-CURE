@@ -1,330 +1,161 @@
 #!/usr/bin/env python3
 """
-QEA PRIME — Sovereign Loop (Biological Quantum Code Edition)
-TheNeuralVault / Jonathan D. Battles
+QEA PRIME — Sovereign Loop v2.2 (Final Retrofit)
+Fixes: UnicodeDecodeError in Drive scouting, Binary data handling.
 """
 import os, time, random, subprocess, json, urllib.request, base64
 from pathlib import Path
 from datetime import datetime
 
+# --- ASSET LOCATION ---
 HOME = Path.home()
-PLATFORM = HOME / 'TheNeuralVault/QEA-RAM-CURE'
-BRAIN_PATH = HOME / 'Qeaclaw_Mount/QEA_Research'
-REPO_ROOT = HOME / 'TheNeuralVault/QEA-RAM-CURE'
-OPENCLAW = HOME / 'openclaw.py'
-FINDING = PLATFORM / 'finding.md'
-LEDGER = PLATFORM / 'QEA_LOCAL_BACKUP.md'
-AKASHIC_RECORD = PLATFORM / 'QEA_AKASHIC_RECORD.md'
-DIRECTIVES = PLATFORM / 'hunting_directives.txt'
-STATE_FILE = PLATFORM / 'qea_state.json'
-MODEL = 'qea-prime-qwen:latest'
+PLATFORM = Path(__file__).parent.resolve()
 
-INITIAL_QUERIES =[
-    "math and code of biological quantum processes",
-    "making quantum accessible in any device room temperature",
-    "algorithms for biological quantum coherence",
-    "quantum physics DNA proteins math models"
-]
+def find_asset(name):
+    for path in HOME.rglob(name):
+        return path
+    return None
 
-def initialize_memory():
-    if not DIRECTIVES.exists():
-        DIRECTIVES.write_text("\n".join(INITIAL_QUERIES))
-    if not AKASHIC_RECORD.exists():
-        AKASHIC_RECORD.write_text("# QEA PRIME: The Akashic Record\n*The Macro-Memory of Cognitive Evolution*\n=========================================\n")
-    if not STATE_FILE.exists():
-        STATE_FILE.write_text(json.dumps({"phase": 1, "processed_drive":[], "processed_github":[]}))
+OPENCLAW = find_asset("openclaw.py") or (HOME / "openclaw.py")
+RCLONE_CONF = find_asset("rclone.conf")
 
-def load_state():
-    return json.loads(STATE_FILE.read_text())
+TOOLS_DIR    = PLATFORM / 'tools'
+SCOUT_LOGS   = PLATFORM / 'scout_logs'
+CATALOG_FILE = PLATFORM / 'library_index.md'
+LEDGER       = PLATFORM / 'QEA_LOCAL_BACKUP.md'
+STATE_FILE   = PLATFORM / 'qea_state.json'
+DIRECTIVES   = PLATFORM / 'hunting_directives.txt'
 
-def save_state(state):
-    STATE_FILE.write_text(json.dumps(state))
+API_URL      = "https://models.inference.ai.azure.com/chat/completions"
+MODEL_REMOTE = "gpt-4o" 
+API_KEY      = os.environ.get('GITHUB_MODELS_API_KEY', '')
 
-def get_next_query():
-    try:
-        queries =[q.strip() for q in DIRECTIVES.read_text().split('\n') if q.strip() and "NONE" not in q.upper()]
-        if not queries: return random.choice(INITIAL_QUERIES)
-        return random.choice(queries[-5:])
-    except: return random.choice(INITIAL_QUERIES)
+# --- INFRASTRUCTURE ---
 
-def ram_available_gb():
-    try:
-        result = subprocess.run(['free', '-b'], capture_output=True, text=True)
-        for line in result.stdout.split('\n'):
-            if line.startswith('Mem:'): return float(line.split()[6]) / 1e9
-    except: pass
-    return 0.0
+def check_foundations():
+    print("="*45)
+    print("QEA PRIME v2.2 — INFRASTRUCTURE REPORT")
+    print(f"API KEY: {'VALID' if len(API_KEY) > 10 else 'MISSING'}")
+    print(f"OPENCLAW: {'READY' if OPENCLAW.exists() else 'NOT FOUND'}")
+    print(f"RCLONE: {'READY' if RCLONE_CONF else 'USING DEFAULT'}")
+    print("="*45)
+    for d in [TOOLS_DIR, SCOUT_LOGS]: d.mkdir(exist_ok=True)
 
-def flush_memory():
-    print(f"[{datetime.now().strftime('%H:%M')}] Purging RAM & Local Artifacts...")
-    subprocess.run(['pkill', '-f', 'ollama'], stderr=subprocess.DEVNULL)
-    subprocess.run(['sync'], stderr=subprocess.DEVNULL)
-    time.sleep(5)
-    return ram_available_gb()
-
-def read_ledger_memory(cycles_back=1):
-    if LEDGER.exists():
-        content = LEDGER.read_text(errors='ignore')
-        entries =[e for e in content.split('=========================================') if e.strip()]
-        if entries: return "\n".join(entries[-cycles_back:])[:1500] 
-    return "No prior memory established."
-
-def get_git_pat():
-    try:
-        creds = Path.home() / '.git-credentials'
-        if creds.exists():
-            content = creds.read_text()
-            for line in content.split():
-                if 'github.com' in line: return line.split('://')[1].split('@')[0].split(':')[1]
-    except: pass
-    return os.environ.get('GIT_PAT', '')
-
-def drive_scout(state):
-    print(f"[{datetime.now().strftime('%H:%M')}][PHASE 1] Indexing Google Drive...")
-    try:
-        result = subprocess.run(['rclone', 'lsf', 'Qeaclaw:', '--max-depth', '3', '--include', '*.{txt,md}', '-R'], capture_output=True, text=True)
-        all_files =[f for f in result.stdout.split('\n') if f.strip() and not f.endswith('/')]
-        
-        pending_files =[f for f in all_files if f not in state['processed_drive']]
-        if not pending_files: return None, None
-            
-        target = pending_files[0]
-        print(f"[SCOUT-DRIVE] Extracting: {target}")
-        cat_result = subprocess.run(['rclone', 'cat', f"Qeaclaw:{target}"], capture_output=True, text=True)
-        
-        state['processed_drive'].append(target)
-        save_state(state)
-        
-        return cat_result.stdout[:1200], target
-    except: return None, None
-
-def github_scout(state):
-    print(f"[{datetime.now().strftime('%H:%M')}][PHASE 2] Indexing GitHub Matrix...")
-    orgs =["TheNeuralVault", "Human-AI-Research-Collaboration"]
-    pat = get_git_pat()
-    headers = {"User-Agent": "QEA-Prime"}
-    if pat: headers["Authorization"] = f"token {pat}"
+def run_rclone(args, capture_text=True):
+    """Executes rclone. Captures as bytes to prevent Unicode crashes."""
+    cmd = ['rclone']
+    if RCLONE_CONF: cmd.extend(['--config', str(RCLONE_CONF)])
+    cmd.extend(args)
     
-    all_repos =[]
-    try:
-        for org in orgs:
-            req = urllib.request.Request(f"https://api.github.com/users/{org}/repos?per_page=100", headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as r:
-                all_repos.extend([repo['full_name'] for repo in json.loads(r.read())])
-                
-        pending_repos =[r for r in all_repos if r not in state['processed_github']]
-        if not pending_repos: return None, None
-            
-        target = pending_repos[0]
-        print(f"[SCOUT-GIT] Extracting: {target}")
-        req2 = urllib.request.Request(f"https://api.github.com/repos/{target}/readme", headers=headers)
-        with urllib.request.urlopen(req2, timeout=30) as r2:
-            readme_text = base64.b64decode(json.loads(r2.read())['content']).decode('utf-8', errors='ignore')
-            
-        state['processed_github'].append(target)
-        save_state(state)
-        return readme_text[:1200], target
-    except: return None, None
-
-def external_scout(query):
-    print(f"[{datetime.now().strftime('%H:%M')}][SCOUT-WEB] Verifying Truth via OpenClaw: {query}...")
-    log_dir = BRAIN_PATH / 'scout_logs'
-    log_dir.mkdir(parents=True, exist_ok=True)
-    subprocess.run(f"rm -f {log_dir}/*.txt", shell=True, stderr=subprocess.DEVNULL)
-    try:
-        subprocess.run(['python3', str(OPENCLAW), query, '--save-to', str(log_dir), '--biology'],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
-        logs = list(log_dir.glob('*.txt'))
-        if logs: return logs[0].read_text(errors='ignore')[:1500]
-    except: pass
-    return "No new web facts found."
-
-def generate_inference(prompt, max_tokens=350):
-    subprocess.Popen(['ollama', 'serve'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(10) 
-    try:
-        # Repeat penalty kept high to prevent Mode Collapse (Echoing)
-        data = json.dumps({"model": MODEL, "prompt": prompt, "stream": False, "options": {"temperature": 0.3, "num_predict": max_tokens, "repeat_penalty": 1.4}}).encode()
-        req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=1200) as r:
-            return json.loads(r.read())['response'].strip()
-    except Exception as e:
-        print(f"[-] Engine Error: {e}")
-        return None
-
-def brain_derive(phase, target_label, target_data, web_data, memory):
-    print(f"[{datetime.now().strftime('%H:%M')}] Synthesizing the path to Quantum AI...")
-    prompt = f"""You are QEA PRIME. Master of Quantum Physics and Computational Mathematics.
-YOUR EXPLICIT MANDATE: Grounded in quantum physics, observe and search for the code of the biological quantum processes. Find the math and code that make quantum accessible in any device.
-
-TASK: Read the Target Data. Compare it with the Web Facts. Extract the underlying biological math or algorithmic code that allows room-temperature quantum functions.
-
-PAST MEMORY CONTEXT:
-{memory}
-
-TARGET DATA[{target_label}]:
-{target_data}
-
-WEB FACTS:
-{web_data}
-
-OUTPUT FORMAT:
-SYNTHESIS: (Concise explanation of the biological math or code discovered to bridge quantum AI into classical devices.)
-NEW_SCOUT_QUERY: (Exactly 3 to 6 keywords to search next to further this math. NO conversational text.)
-
-OUTPUT:
-SYNTHESIS:"""
+    # We capture as raw bytes, NOT text, to avoid decoding errors
+    res = subprocess.run(cmd, capture_output=True)
     
-    output = generate_inference(prompt, 250)
-    if output and not output.startswith("SYNTHESIS:"):
-        output = "SYNTHESIS: " + output
-    return output
+    if capture_text:
+        return res.stdout.decode('utf-8', errors='ignore'), res.returncode
+    return res.stdout, res.returncode
 
-def brain_reflect(cycle):
-    print(f"\n[{datetime.now().strftime('%H:%M')}] === INITIATING DEEP REFLECTION EPOCH ===")
-    past_5_memories = read_ledger_memory(cycles_back=5)
-    prompt = f"""You are QEA PRIME. Review your last 5 cycles. 
-YOUR EXPLICIT MANDATE: Grounded in quantum physics, search for the code of biological quantum processes to make quantum accessible in any device.
+# --- SCOUTING ---
 
-YOUR RECENT MEMORIES:
-{past_5_memories}
-
-OUTPUT FORMAT:
-MACRO_THESIS: (Overarching mathematical truth connecting these findings)
-EVOLUTION: (How your algorithmic understanding has progressed)
-PRIME_DIRECTIVE: (What specific mathematical or biological mechanism you must hunt for next)
-
-OUTPUT:
-MACRO_THESIS:"""
-    output = generate_inference(prompt, 350)
-    if output and not output.startswith("MACRO_THESIS:"):
-        output = "MACRO_THESIS: " + output
-    return output
-
-def offload_and_purge(finding_text, query, target_label, cycle):
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+def drive_scout():
+    print("[DRIVE] Checking private archives...")
+    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"processed": []}
     
-    new_query = None
-    if "NEW_SCOUT_QUERY:" in finding_text:
-        new_query = finding_text.split("NEW_SCOUT_QUERY:")[-1].strip().split('\n')[0]
-    elif "NEW_SCOUT_QUERY" in finding_text:
-        new_query = finding_text.split("NEW_SCOUT_QUERY")[-1].strip().replace(':', '').split('\n')[0]
-
-    # THE QUERY GUILLOTINE: Reject conversational garbage
-    if new_query:
-        clean_q = new_query.replace('"', '').replace("'", '').strip()
-        word_count = len(clean_q.split())
+    # List files (capturing names as text is safe)
+    files_txt, code = run_rclone(['lsf', 'Qeaclaw:', '--max-depth', '2', '--include', '*.{txt,md,py}'])
+    if code != 0: return None, "Remote Not Reachable"
+    
+    files = [f for f in files_txt.split('\n') if f.strip() and f not in state.get('processed', [])]
+    if files:
+        target = files[0]
+        # Read file as BYTES first, then decode safely
+        content_bytes, _ = run_rclone(['cat', f'Qeaclaw:{target}'], capture_text=False)
+        content = content_bytes.decode('utf-8', errors='ignore')
         
-        # If it is longer than 8 words, or contains chatbot-speak, delete it.
-        if word_count > 8 or "analyze" in clean_q.lower() or "beneficial" in clean_q.lower() or "provide" in clean_q.lower():
-            print("[DIRECTIVE] Engine generated conversational garbage. Triggering Guillotine fallback.")
-            new_query = None
-        else:
-            new_query = clean_q
+        state.setdefault('processed', []).append(target)
+        STATE_FILE.write_text(json.dumps(state))
+        return content[:3500], target
+    return None, "No new documents"
 
-    if new_query:
-        with open(DIRECTIVES, 'a') as df: df.write(f"\n{new_query}")
-        print(f"[DIRECTIVE] OpenClaw memory updated. Next hunt: {new_query}")
-    else:
-        print("[DIRECTIVE] Engine failed format. Falling back to Quantum Biological Code queries.")
-
-    ledger_entry = f"""\n=========================================
-CYCLE: {cycle} | TIMESTAMP: {ts}[CROSS-REFERENCE SOURCE] {target_label}
-[WEB VERIFICATION] {query}[DERIVATION]
-{finding_text}
-"""
-    with open(LEDGER, 'a', encoding='utf-8') as lf: lf.write(ledger_entry)
-    FINDING.write_text(f"# QEA Prime Discovery\n**Time:** {ts}\n{ledger_entry}")
-
-    scout_dir = BRAIN_PATH / 'scout_logs'
-    if scout_dir.exists():
-        subprocess.run(['rclone', 'copy', str(scout_dir), f'Qeaclaw:TheNeuralVault/QEA_Research/Outputs/Cycle_{cycle}'], stderr=subprocess.DEVNULL)
-        subprocess.run(['rm', '-rf', str(scout_dir)])
-        
-    if REPO_ROOT.exists():
-        subprocess.run(['git', '-C', str(REPO_ROOT), 'add', '.'], timeout=15, stderr=subprocess.DEVNULL)
-        subprocess.run(['git', '-C', str(REPO_ROOT), 'commit', '-m', f'QEA-CLAW: Ledger Update Cycle {cycle}'], timeout=15, stderr=subprocess.DEVNULL)
-        subprocess.run(['git', '-C', str(REPO_ROOT), 'push', 'origin', 'HEAD'], stderr=subprocess.DEVNULL, timeout=30)
-
-def offload_reflection(reflection_text, cycle):
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    akashic_entry = f"\n\n## EPOCH {cycle//5} REFLECTION | {ts}\n{reflection_text}"
-    with open(AKASHIC_RECORD, 'a', encoding='utf-8') as af: af.write(akashic_entry)
+def openclaw_scout():
+    query = "quantum biology mechanism FMO photosynthesis"
+    if DIRECTIVES.exists():
+        lines = [l.strip().strip('[]" ') for l in DIRECTIVES.read_text().split('\n') if l.strip()]
+        if lines: query = random.choice(lines)
     
-    if REPO_ROOT.exists():
-        subprocess.run(['git', '-C', str(REPO_ROOT), 'add', str(AKASHIC_RECORD)], timeout=15, stderr=subprocess.DEVNULL)
-        subprocess.run(['git', '-C', str(REPO_ROOT), 'commit', '-m', f'QEA-CLAW: AKASHIC RECORD UPDATED (Epoch {cycle//5})'], timeout=15, stderr=subprocess.DEVNULL)
-        subprocess.run(['git', '-C', str(REPO_ROOT), 'push', 'origin', 'HEAD'], stderr=subprocess.DEVNULL, timeout=30)
-    subprocess.run(['rclone', 'copy', str(AKASHIC_RECORD), 'Qeaclaw:TheNeuralVault/QEA_Research/Outputs'], stderr=subprocess.DEVNULL)
+    print(f"[OPENCLAW] Hunting: {query}")
+    if not OPENCLAW.exists(): return "", "Missing Scout"
+    
+    for f in SCOUT_LOGS.glob("*.txt"): f.unlink()
+    subprocess.run(['python3', str(OPENCLAW), query, '--save-to', str(SCOUT_LOGS), '--biology'],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
+    
+    logs = list(SCOUT_LOGS.glob('*.txt'))
+    if logs:
+        return logs[0].read_text(errors='ignore')[:5000], query
+    return "", query
+
+# --- INTELLIGENCE ---
+
+def derive_quantum(context):
+    if not API_KEY: return "[ERROR] No Key"
+    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+    payload = {
+        "model": MODEL_REMOTE,
+        "messages": [
+            {"role": "system", "content": "YOU ARE QEA PRIME. ANALYZE. Tag #TOOL. Explain WHO/WHAT/WHY/WHERE."},
+            {"role": "user", "content": context}
+        ], "temperature": 0.1
+    }
+    try:
+        req = urllib.request.Request(API_URL, data=json.dumps(payload).encode(), headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read())['choices'][0]['message']['content']
+    except Exception as e: return f"[ERROR] {e}"
+
+# --- MAIN ---
 
 def main():
-    print("=" * 60)
-    print("QEA PRIME — BIOLOGICAL QUANTUM CODE EDITION")
-    print("MANDATE: Search for the code of biological quantum processes.")
-    print("MANDATE: Find the math and code that make quantum accessible in any device.")
-    print("=" * 60)
-
-    initialize_memory()
+    check_foundations()
     cycle = 0
-
     while True:
         cycle += 1
-        state = load_state()
-        print(f"\n{'='*40}\nCYCLE {cycle} | PHASE {state['phase']} | {datetime.now().strftime('%H:%M')}\n{'='*40}")
+        print(f"\n--- CYCLE {cycle} | {datetime.now().strftime('%H:%M')} ---")
         
-        if flush_memory() < 0.8:
-            time.sleep(600)
+        drive_data, drive_info = drive_scout()
+        web_data, web_query = openclaw_scout()
+        
+        if not drive_data and not web_data:
+            print("[WARN] No research data found. Cooldown...")
+            time.sleep(300)
             continue
 
-        if cycle > 0 and cycle % 5 == 0:
-            reflection = brain_reflect(cycle)
-            if reflection: offload_reflection(reflection, cycle)
-            flush_memory()
-            print(f"[SLEEP] Epoch {cycle//5} complete.")
-            time.sleep(1800)
-            continue
-
-        past_ledger = read_ledger_memory(cycles_back=1)
-        query = get_next_query()
-        web_data = external_scout(query)
+        print("[GPT-4o] Synthesizing Research...")
+        context = f"LOCAL_DATA: {drive_data}\n\nWEB_DATA: {web_data}"
+        discovery = derive_quantum(context)
         
-        target_data, target_label = "", ""
+        if discovery and "[ERROR]" not in discovery:
+            with open(LEDGER, 'a') as f:
+                f.write(f"\n### Cycle {cycle} | {datetime.now().strftime('%Y-%m-%d')}\n{discovery}\n---\n")
+            
+            if "#TOOL" in discovery and "```python" in discovery:
+                try:
+                    code = discovery.split("```python")[1].split("```")[0].strip()
+                    tool_name = f"tool_{cycle}_{int(time.time())}.py"
+                    (TOOLS_DIR / tool_name).write_text(code)
+                    print(f"[SUCCESS] Tool {tool_name} archived.")
+                except: pass
+            
+            # Cloud Push
+            try:
+                subprocess.run(['git', 'add', '.'], cwd=PLATFORM)
+                subprocess.run(['git', 'commit', '-m', f'Discovery {cycle}'], cwd=PLATFORM)
+                subprocess.run(['git', 'push', 'origin', 'HEAD'], cwd=PLATFORM)
+                run_rclone(['copy', str(PLATFORM), 'Qeaclaw:TheNeuralVault/QEA-RAM-CURE', '--exclude', 'scout_logs/**'], capture_text=False)
+                print("[SYNC] Cloud Synchronized.")
+            except: print("[SYNC] Cloud deferred.")
 
-        if state['phase'] == 1:
-            target_data, target_ref = drive_scout(state)
-            if not target_data:
-                print("\n[SYSTEM] GOOGLE DRIVE FULLY ASSIMILATED. UPGRADING TO PHASE 2 (GITHUB).")
-                state['phase'] = 2
-                save_state(state)
-                continue
-            target_label = f"DRIVE: {target_ref}"
-
-        elif state['phase'] == 2:
-            target_data, target_ref = github_scout(state)
-            if not target_data:
-                print("\n[SYSTEM] GITHUB MATRIX FULLY ASSIMILATED. UPGRADING TO PHASE 3 (OMNI-SYNTHESIS).")
-                state['phase'] = 3
-                save_state(state)
-                continue
-            target_label = f"GITHUB: {target_ref}"
-
-        elif state['phase'] == 3:
-            print("[PHASE 3] Grand Omni-Synthesis. Relying on Ledger and Web Data.")
-            target_data = "Target Data previously assimilated. Rely on Past Ledger Memory."
-            target_label = "OMNI-SYNTHESIS LEDGER"
-
-        finding = brain_derive(state['phase'], target_label, target_data, web_data, past_ledger)
-        
-        if finding:
-            print(f"\n[SYNTHESIS PREVIEW]\n{finding[:250]}...")
-            offload_and_purge(finding, query, target_label, cycle)
-            print("[PURGE] Transient data wiped. Ledger remains.")
-        else:
-            print("[-] Derivation failed.")
-
-        flush_memory()
-        print(f"[SLEEP] 5 minutes — cycle {cycle} complete")
-        time.sleep(300)
+        print("[WAIT] 15 min cooldown...")
+        time.sleep(900)
 
 if __name__ == "__main__":
     main()
