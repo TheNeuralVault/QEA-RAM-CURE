@@ -1,0 +1,52 @@
+
+╔══════════════════════════════════════════════════════════╗
+║  OPENCLAW — QEA Prime Co-Researcher                     ║
+║  Quantum is not inaccessible — it is undiscovered.      ║
+╚══════════════════════════════════════════════════════════╝
+
+Found: 5 unique sources
+
+────────────────────────────────────────────────────────────
+[RESULT-01] [TIER-1-SIGNAL] [SemanticScholar]
+TITLE:   Quantum Biology, Quantum Simulation and Quantum Coherent Devices
+AUTHORS: Rong-Hang Chen, Jing Dong, Wen Yang
+DATE:    2025
+ABSTRACT: Many living organisms can exploit quantum mechanical effects to gain distinct biological advantages. In plants, photosynthesis uses quantum coherence to achieve near 100% efficiency in energy transfer. With advances in experimental techniques, two-dimensional electronic spectroscopy can reveal dynamic processes such as coherence and coupling within a system, and it plays an imp...
+[RESEARCH-VECTOR: Quantum Biology, Quantum Simulation and Quantum Coheren]
+
+────────────────────────────────────────────────────────────
+[RESULT-02] [TIER-1-SIGNAL] [SemanticScholar]
+TITLE:   Magnetic effects in biology: Crucial role of quantum coherence in the radical pair mechanism.
+AUTHORS: V. Binhi
+DATE:    2025
+REF:     10.1103/n3fs-fsnv
+ABSTRACT: The spin-chemical radical pair mechanism (RPM) has emerged as a leading theory for explaining the biological effects of low-intensity magnetic fields. These intriguing effects occur when the quantum system of radicals is well isolated from the disturbing influence of the environment. In other words, these effects are closely related to the spin coherence relaxation time τ, but ...
+[RESEARCH-VECTOR: Magnetic effects in biology: Crucial role of quantum co]
+
+────────────────────────────────────────────────────────────
+[RESULT-03] [TIER-1-SIGNAL] [SemanticScholar]
+TITLE:   Coherence Dispersion and Temperature Scales in a Quantum-Biology Toy Model
+AUTHORS: F. Parisio
+DATE:    2025
+ABSTRACT: In this work, we investigate how quantum coherence can scatter among the several off-diagonal elements of an arbitrary quantum state, defining coherence dispersion ($\Delta_{\rm c}$). It turns out that this easily computable quantity is maximized for intermediate values of an appropriate entropy, a prevalent signature of complexity quantifiers across different fields, from ling...
+[RESEARCH-VECTOR: Coherence Dispersion and Temperature Scales in a Quantu]
+
+────────────────────────────────────────────────────────────
+[RESULT-04] [TIER-3-SIGNAL] [SemanticScholar]
+TITLE:   Quantum Electrodynamics Coherence and Hormesis: Foundations of Quantum Biology
+AUTHORS: Pierre Madl, Paolo Renati
+DATE:    2023
+REF:     10.3390/ijms241814003
+ABSTRACT: Background: “Quantum biology” (QB) is a promising theoretical approach addressing questions about how living systems are able to unfold dynamics that cannot be solved on a chemical basis or seem to violate some fundamental laws (e.g., thermodynamic yield, morphogenesis, adaptation, autopoiesis, memory, teleology, biosemiotics). Current “quantum” approaches in biology are still ...
+[RESEARCH-VECTOR: Quantum Electrodynamics Coherence and Hormesis: Foundat]
+
+────────────────────────────────────────────────────────────
+[RESULT-05] [TIER-1-SIGNAL] [PubMed]
+TITLE:   The determination of pair distance distributions by pulsed ESR using Tikhonov regularization.
+AUTHORS: Chiang Yun-Wei, Borbat Peter P, Freed Jack H
+DATE:    2005
+REF:     https://pubmed.ncbi.nlm.nih.gov/15649755/
+ABSTRACT: Pulsed ESR techniques with the aid of site-directed spin labeling have proven useful in providing unique structural information about proteins. The determination of distance distributions in electron spin pairs directly from the dipolar time evolution of the pulsed ESR signals by means of the Tikhonov regularization method is reported. The difficulties connected with numericall...
+[RESEARCH-VECTOR: The determination of pair distance distributions by pul]
+
+[OPENCLAW-COMPLETE] 5 sources logged.
