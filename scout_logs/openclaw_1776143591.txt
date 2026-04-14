@@ -1,0 +1,44 @@
+
+╔══════════════════════════════════════════════════════════╗
+║  OPENCLAW — QEA Prime Co-Researcher                     ║
+║  Quantum is not inaccessible — it is undiscovered.      ║
+╚══════════════════════════════════════════════════════════╝
+
+Found: 4 unique sources
+
+────────────────────────────────────────────────────────────
+[RESULT-01] [TIER-1-SIGNAL] [SemanticScholar]
+TITLE:   Chirality-bolstered quantum Zeno effect enhances radical pair-based magnetoreception
+AUTHORS: Luke D. Smith, Sukesh Tallapudi, Matt C J Denton
+DATE:    2025
+REF:     10.1116/5.0277712
+ABSTRACT: Radical pairs in the flavoprotein cryptochrome are central to various magnetically sensitive biological processes, including the proposed mechanism of avian magnetoreception. Cryptochrome's molecular chirality has been hypothesized to enhance magnetic field effects via the chirality-induced spin selectivity (CISS) effect, yet the mechanism underlying this enhancement remains un...
+[RESEARCH-VECTOR: Chirality-bolstered quantum Zeno effect enhances radica]
+
+────────────────────────────────────────────────────────────
+[RESULT-02] [TIER-4-SIGNAL] [SemanticScholar]
+TITLE:   Magnetic field effects in biology from the perspective of the radical pair mechanism
+AUTHORS: Hadi Zadeh-Haghighi, C. Simon
+DATE:    2022
+REF:     10.1098/rsif.2022.0325
+ABSTRACT: Hundreds of studies have found that weak magnetic fields can significantly influence various biological systems. However, the underlying mechanisms behind these phenomena remain elusive. Remarkably, the magnetic energies implicated in these effects are much smaller than thermal energies. Here, we review these observations, and we suggest an explanation based on the radical pair...
+[RESEARCH-VECTOR: Magnetic field effects in biology from the perspective ]
+
+────────────────────────────────────────────────────────────
+[RESULT-03] [TIER-3-SIGNAL] [SemanticScholar]
+TITLE:   Qiskit Quantum Circuits Posit Singlet state in Radical Pair-based Magnetoreception of Migratory Birds
+AUTHORS: Hillol Biswas, Spyridon Talaganis
+DATE:    2025
+ABSTRACT: Quantum computing applications in diverse domains are emerging rapidly. Given the limitations of classical computing techniques, the peculiarity of quantum circuits, which can observe quantum phenomena such as superposition, entanglement, and quantum coherence, is remarkable. This capability enables them to achieve measurement sensitivities far beyond classical limits. Research...
+[RESEARCH-VECTOR: Qiskit Quantum Circuits Posit Singlet state in Radical ]
+
+────────────────────────────────────────────────────────────
+[RESULT-04] [TIER-3-SIGNAL] [SemanticScholar]
+TITLE:   Identifying a possible mechanism for the quantum needle in chemical magnetoreception
+AUTHORS: Xiaoyu Chen, Haibin Liu, Jianming Cai
+DATE:    2024
+REF:     10.1103/PhysRevA.110.042220
+ABSTRACT: The radical pair mechanism is an important model that may provide a basis for biological magnetoreception. To account for the high orientation precision of the real avian compass, P. J. Hore et al. proposed an intriguing phenomenon called quantum needle [Proc. Natl. Acad. Sci. 113, 4634 (2016)], where a spike-like feature emerges in the fractional yield signal. However, it is b...
+[RESEARCH-VECTOR: Identifying a possible mechanism for the quantum needle]
+
+[OPENCLAW-COMPLETE] 4 sources logged.
