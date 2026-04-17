@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: FMO coherence 300K python code
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:FMO OR all:coherence OR all:300K OR all:python OR all:code&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] atoMEC: An open-source average-atom Python code
+
+[arXiv] [TIER-2] Social Network Analysis: From Graph Theory to Applications with Python
+
+[arXiv] [TIER-2] ePython: An implementation of Python for the many-core Epiphany coprocessor
+
+[arXiv] [TIER-2] A simple Python code for computing effective properties of 2D and 3D representative volume element under periodic boundary conditions
+
+[arXiv] [TIER-2] Performance of Python runtimes on a non-numeric scientific code

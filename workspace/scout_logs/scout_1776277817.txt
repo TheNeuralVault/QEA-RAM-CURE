@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: radical pair Hamiltonian
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:radical OR all:pair OR all:Hamiltonian&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] The Great Inequality In A Hamiltonian Planetary Theory
+
+[arXiv] [TIER-2] On radical and torsion theory in the category of S-acts
+
+[arXiv] [TIER-2] Hamiltonian engineering for quantum systems
+
+[arXiv] [TIER-2] Hamiltonian Simulation of Quantum Beats in Radical Pairs Undergoing Thermal Relaxation on Near-term Quantum Computers
+
+[arXiv] [TIER-2] Multimer Radical Ions and Electron/Hole Localization in Polyatomic Molecular Liquids: A critical review

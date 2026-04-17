@@ -1,1 +1,1 @@
-Goal: Extract and validate quantum code for quantum coherence photosynthesis C++ implementation
+Goal: Extract and validate quantum code for FeMoCo nitrogenase quantum tunneling python

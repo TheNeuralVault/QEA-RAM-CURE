@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: ENAQT noise-assisted
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:ENAQT OR all:noise-assisted&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] AC driven strongly correlated quantum circuits and Hall edge states: Unified photo-assisted noise and revisited minimal excitations
+
+[arXiv] [TIER-2] Photo-assisted shot noise in the fractional quantum Hall regime
+
+[arXiv] [TIER-2] Noise-assisted quantum transport and computation
+
+[arXiv] [TIER-2] Noise-assisted energy transport in electrical oscillator networks with off-diagonal dynamical disorder
+
+[arXiv] [TIER-2] Noise-Assisted Quantum Autoencoder

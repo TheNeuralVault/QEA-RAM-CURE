@@ -1,0 +1,31 @@
+name: QEA GLOBAL ALIGNMENT
+
+on:
+  workflow_dispatch: # Manual trigger for Task 1
+
+jobs:
+  organize_and_inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Root
+        uses: actions/checkout@v4
+        with:
+            path: 'main'
+
+      - name: Run Great Alignment Script
+        run: |
+          cd main
+          python3 great_alignment.py
+
+      - name: OpenClaw Global Research Update
+        run: |
+          # Use OpenClaw to find any missing SOTA quantum code for the inventory
+          python3 main/openclaw.py "SOTA quantum biological code implementations" --save-to main/workspace/scout_logs --biology
+
+      - name: Commit Alignment
+        run: |
+          cd main
+          git config --global user.name "QEA-PRIME-LIBRARIAN"
+          git add .
+          git commit -m "Magnus Opus: Task 1 Alignment Complete"
+          git push

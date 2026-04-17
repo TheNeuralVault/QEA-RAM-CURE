@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: FMO coherence physiological temperature code
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:FMO OR all:coherence OR all:physiological OR all:temperature OR all:code&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] Long-lived quantum coherence in photosynthetic complexes at physiological temperature
+
+[arXiv] [TIER-2] Exploring the Optimal Time Window for Predicting Cognitive Load Using Physiological Sensor Data
+
+[arXiv] [TIER-2] Predicting entanglement and coherent times in FMO complex using the HEOM method
+
+[arXiv] [TIER-2] Can we say a cat is a cat? Understanding the challenges in annotating physiological signal-based emotion data
+
+[arXiv] [TIER-2] Ground State Quantum Coherences: from Quantum Beats to Strong Control

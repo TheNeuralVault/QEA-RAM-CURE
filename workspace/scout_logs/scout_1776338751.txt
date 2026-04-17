@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: FeMoCo quantum tunneling
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:FeMoCo OR all:quantum OR all:tunneling&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] Quantum tunneling of composite object coupled with quantized radiation field
+
+[arXiv] [TIER-2] Tianyan: Cloud services with quantum advantage
+
+[arXiv] [TIER-2] Quantum tunneling of a singular potential
+
+[arXiv] [TIER-2] Room temperature observation of electron resonant tunneling through InAs/AlAs quantum dots
+
+[arXiv] [TIER-2] Single-particle quantum tunneling in ionic traps

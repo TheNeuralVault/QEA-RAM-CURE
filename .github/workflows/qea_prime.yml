@@ -1,0 +1,40 @@
+name: QEA PRIME CLOUD FOUNDRY
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Runs every 6 hours (4 times a day)
+  workflow_dispatch:      # Allows you to click "Run" manually
+
+permissions:
+  contents: write
+
+jobs:
+  quantum_discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve > /dev/null 2>&1 &
+          sleep 10
+
+      - name: Pull Specialized Models
+        run: |
+          ollama pull qwen2.5-coder:3b
+          ollama pull deepseek-r1:1.5b
+
+      - name: Execute Sovereign Batch
+        run: |
+          # Run 3 high-intensity cycles, then exit to save minutes
+          python3 sovereign_loop.py --batch 3
+
+      - name: Archive and Sync
+        run: |
+          git config --global user.name "QEA-PRIME-LIBRARIAN"
+          git config --global user.email "qea-prime@neuralvault.local"
+          git add .
+          git commit -m "Cloud Discovery: $(date +'%Y-%m-%d %H:%M')" || echo "No changes"
+          git push

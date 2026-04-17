@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: dark state memory quantum AI
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:dark OR all:state OR all:memory OR all:quantum OR all:AI&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] The Dark Energy Survey
+
+[arXiv] [TIER-2] Large Synoptic Survey Telescope: Dark Energy Science Collaboration
+
+[arXiv] [TIER-2] Foundations of GenIR
+
+[arXiv] [TIER-2] AI prediction leads people to forgo guaranteed rewards
+
+[arXiv] [TIER-2] Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms

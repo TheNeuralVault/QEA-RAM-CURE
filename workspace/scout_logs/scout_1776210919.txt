@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: microtubule spintronic coherence neuron
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:microtubule OR all:spintronic OR all:coherence OR all:neuron&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] APTx Neuron: A Unified Trainable Neuron Architecture Integrating Activation and Computation
+
+[arXiv] [TIER-2] Spatial and Temporal Sensing Limits of Microtubule Polarization in Neuronal Growth Cones by Intracellular Gradients and Forces
+
+[arXiv] [TIER-2] The Feasibility of Coherent Energy Transfer in Microtubules
+
+[arXiv] [TIER-2] Neuron-level Balance between Stability and Plasticity in Deep Reinforcement Learning
+
+[arXiv] [TIER-2] Quantum control in artificial neurons with superconductor-ionic memory inserted in the feedback

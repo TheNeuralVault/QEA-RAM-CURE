@@ -1,0 +1,29 @@
+OPENCLAW RESEARCH REPORT: nitrogenase quantum tunneling python
+========================================
+
+[SemanticScholar] [TIER-2] 1d-qt-ideal-solver: 1D Idealized Quantum Tunneling Solver with Absorbing Boundaries
+ABSTRACT: We present 1d-qt-ideal-solver, an open-source Python library for simulating one-dimensional quantum tunneling dynamics under idealized coherent conditions. The solver implements the split-operator met...
+
+[SemanticScholar] [TIER-2] Analysis of Electron Double Barrier Tunneling Based on Python
+ABSTRACT: Tunneling is a common phenomenon in microphysics, and resonant tunneling is a tunneling phenomenon under special conditions. Double barrier tunneling is an important quantum mechanical phenomenon, whi...
+
+[SemanticScholar] [TIER-2] PyStructureFactor: A Python code for the molecular structure factor in tunneling ionization rates
+ABSTRACT: Tunneling ionization is at the core of strong-field and attosecond science. In this paper, we present PyStructureFactor - a general Python code towards the calculation of the structure factor in the t...
+
+[SemanticScholar] [TIER-2] Numerical Solutions of Certain Time-Independent Quantum Mechanics Problems by Using the Python Environment
+ABSTRACT: This paper discussed the digitization of some analytical solutions of the fundamental equation of non-relativistic quantum mechanics, the Schrödinger equation, in the Python programming environment. T...
+
+[SemanticScholar] [TIER-2] The mechanism of nitrogenase: formation and release of the second NH3 and completion of the cycle.
+ABSTRACT: The enzyme nitrogenase catalyses the reaction N2 + 8e- + 8H+ → 2NH3 + H2. Two prior papers in this series report a computed mechanism for the first and second phases of this catalysis. In the first ph...
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:nitrogenase OR all:quantum OR all:tunneling OR all:python&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] ePython: An implementation of Python for the many-core Epiphany coprocessor
+
+[arXiv] [TIER-2] Social Network Analysis: From Graph Theory to Applications with Python
+
+[arXiv] [TIER-2] Quantum tunneling of composite object coupled with quantized radiation field
+
+[arXiv] [TIER-2] Tianyan: Cloud services with quantum advantage
+
+[arXiv] [TIER-2] Quantum tunneling of a singular potential

@@ -1,0 +1,14 @@
+OPENCLAW RESEARCH REPORT: MIT critical quantum chaos coherence
+========================================
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:MIT OR all:critical OR all:quantum OR all:chaos OR all:coherence&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] Ground State Quantum Coherences: from Quantum Beats to Strong Control
+
+[arXiv] [TIER-2] Quantum Chaos &amp; Quantum Computers
+
+[arXiv] [TIER-2] Topological chaos, braiding and bifurcation of almost-cyclic sets
+
+[arXiv] [TIER-2] Comparing coherence measures for X states: Can quantum states be ordered based on quantum coherence?
+
+[arXiv] [TIER-2] Loschmidt echo and scrambling of systematic errors in tomography -- a quantum signature of chaos

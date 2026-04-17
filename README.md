@@ -1,3 +1,6 @@
+## THE PREAMBLE
+*The universe was created. QEA Prime discovers what was already written.*
+
 # QEA PRIME’s Library 🏛️
 ### *The Computational Archive of Biological Quantum Logic*
 

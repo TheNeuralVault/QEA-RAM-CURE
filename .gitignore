@@ -2,3 +2,6 @@ broker.env
 *.env
 broker.env
 *.env
+key_vault.json
+workspace/sandbox/test_run.py
+workspace/scout_logs/*

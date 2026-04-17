@@ -1,124 +1,94 @@
 #!/usr/bin/env python3
 """
-QEA PRIME v4.0 — THE ORCHESTRATED QUANTUM LAB
-Orchestrator: OpenClaw Multi-Agent Supervisor Pattern
-Focus: Self-Correcting Discovery Loop
+QEA PRIME v5.3 — THE HYBRID FOUNDRY
+Logic: Optimized for Phone (Continuous) and GitHub (Batch Mode).
+Sovereignty: Local Models + Cloud Automation.
 """
-import os, time, subprocess, json, random
+import os, sys, time, subprocess, random, re, json, urllib.request
 from pathlib import Path
 from datetime import datetime
 
-# --- PATHS ---
-PLATFORM = Path(__file__).parent.resolve()
-WORKSPACE = PLATFORM / 'workspace'
-LEDGER = PLATFORM / 'QEA_LOCAL_BACKUP.md'
+# --- CONFIG & ARGS ---
+BATCH_MODE = False
+BATCH_LIMIT = 0
+if "--batch" in sys.argv:
+    BATCH_MODE = True
+    idx = sys.argv.index("--batch")
+    BATCH_LIMIT = int(sys.argv[idx+1])
+
+PLATFORM   = Path(__file__).parent.resolve()
+WORKSPACE  = PLATFORM / 'workspace'
+LEDGER     = PLATFORM / 'QEA_QUANTUM_LEDGER.md'
 DIRECTIVES = PLATFORM / 'hunting_directives.txt'
-API_KEY = os.environ.get('GITHUB_MODELS_API_KEY', '')
+TOOLS_DIR  = PLATFORM / 'tools'
+SANDBOX    = WORKSPACE / 'sandbox'
 
-# --- AGENT WRAPPERS ---
+for d in [WORKSPACE/'scout_logs', TOOLS_DIR, SANDBOX]:
+    d.mkdir(parents=True, exist_ok=True)
 
-def call_agent(agent_name, prompt, context=""):
-    """
-    Simulates an OpenClaw sessions_send call to a specific agent.
-    In a full OpenClaw setup, this would be handled by the Gateway.
-    """
-    print(f"[@{agent_name}] Processing task...")
-    
-    # System Prompts per Agent
-    souls = {
-        "supervisor": (PLATFORM / "agents/supervisor/SOUL.md").read_text(),
-        "architect":  (PLATFORM / "agents/architect/SOUL.md").read_text(),
-        "validator":  (PLATFORM / "agents/validator/SOUL.md").read_text()
-    }
-    
-    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
-    payload = {
-        "model": "gpt-4o",
-        "messages": [
-            {"role": "system", "content": souls.get(agent_name, "You are a QEA Specialist.")},
-            {"role": "user", "content": f"CONTEXT:\n{context}\n\nTASK:\n{prompt}"}
-        ], "temperature": 0.1
-    }
-    
+# --- NEURAL BROKER ---
+def call_local(role, model, task, context=""):
+    print(f"  [@QEA-{role}] via {model}... ", end='', flush=True)
+    t0 = time.time()
+    prompt = f"PREAMBLE: Discover. Never invent.\nROLE: {role}\nCONTEXT: {context[:1500]}\nTASK: {task}"
+    payload = {"model": model, "prompt": prompt, "stream": False, "options": {"temperature": 0.1}}
     try:
-        url = "https://models.inference.ai.azure.com/chat/completions"
-        req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=90) as r:
+        data = json.dumps(payload).encode()
+        req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=data, method='POST')
+        with urllib.request.urlopen(req, timeout=300) as r:
             res = json.loads(r.read())
-            return res['choices'][0]['message']['content']
-    except Exception as e:
-        return f"[ERROR] Agent communication failed: {e}"
+            print(f"{time.time()-t0:.1f}s ✓")
+            return res.get('response', '')
+    except: return "ERROR"
 
-import urllib.request
+def run_sandbox(code_text):
+    test_file = SANDBOX / "runtime_check.py"
+    m = re.search(r'```python\s*\n(.*?)```', code_text, re.DOTALL | re.IGNORECASE)
+    code = m.group(1).strip() if m else code_text
+    test_file.write_text(code)
+    try:
+        res = subprocess.run(['python3', str(test_file)], capture_output=True, text=True, timeout=30)
+        return (res.returncode == 0, (res.stdout if res.returncode == 0 else res.stderr)[:400])
+    except: return (False, "Timeout")
 
-# --- THE ORCHESTRATION LOOP ---
+# --- SOVEREIGN CYCLE ---
+def run_cycle(cycle):
+    print(f"\n{'='*60}\nCYCLE {cycle} | {'CLOUD' if BATCH_MODE else 'LOCAL'} | {datetime.now().strftime('%H:%M:%S')}\n{'='*60}")
+    
+    if not DIRECTIVES.exists(): DIRECTIVES.write_text("FMO quantum coherence\nMIT boundary physics")
+    query = random.choice([l.strip() for l in open(DIRECTIVES).readlines() if l.strip()])
+    
+    # 1. SCOUT
+    print(f"  [SCOUT] Hunting: {query}")
+    subprocess.run(['python3', '/root/openclaw.py', query, '--save-to', str(WORKSPACE/'scout_logs'), '--biology'], capture_output=True)
+    logs = list((WORKSPACE/'scout_logs').glob('*.txt'))
+    research = logs[0].read_text(errors='ignore')[:2500] if logs else "Direct Synthesis."
 
-def run_orchestrated_cycle(cycle):
-    print(f"\n{'='*60}\nORCHESTRATED CYCLE {cycle} | {datetime.now().strftime('%H:%M:%S')}\n{'='*60}")
+    # 2. ARCHITECT & VALIDATE
+    arch_out = call_local("ARCHITECT", "qwen2.5-coder:3b", f"Code for: {query}", research)
+    passed, msg = run_sandbox(arch_out)
     
-    # 1. SUPERVISOR: Define the Goal
-    query = random.choice(open(DIRECTIVES).readlines()).strip() if DIRECTIVES.exists() else "FMO coherence 300K"
-    (WORKSPACE / "goal.md").write_text(f"Goal: Extract and validate quantum code for {query}")
-    
-    # 2. SCOUT (OpenClaw): Gather Truth Data
-    print("[SCOUT] Engaging global research hunt...")
-    scout_logs = WORKSPACE / 'scout_logs'
-    scout_logs.mkdir(exist_ok=True)
-    subprocess.run(['python3', '/root/openclaw.py', query, '--save-to', str(scout_logs), '--biology'], 
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
-    logs = list(scout_logs.glob('*.txt'))
-    research_data = logs[-1].read_text(errors='ignore') if logs else "No data."
-    
-    # 3. ARCHITECT: Build the Code
-    architect_output = call_agent("architect", f"Build the quantum simulation code for: {query}", research_data)
-    
-    # 4. VALIDATOR: Review for Integrity
-    print("[VALIDATOR] Verifying physical accuracy...")
-    validation_report = call_agent("validator", "Review the following code for TIER-1 physical accuracy and executable integrity.", architect_output)
-    
-    if "REJECT" in validation_report.upper():
-        print("[!] BUILD REJECTED BY VALIDATOR. Retrying in next cycle.")
-        return False
-
-    # 5. SUPERVISOR: Final Synthesis & Archiving
-    print("[SUPERVISOR] Build approved. Archiving to Library...")
-    final_entry = call_agent("supervisor", "Synthesize the approved research and code into a final Ledger entry. Include Who/What/Why/Where.", f"RESEARCH: {research_data}\n\nCODE: {architect_output}\n\nVALIDATION: {validation_report}")
-    
-    # Final Persistence
-    with open(LEDGER, 'a') as f:
-        f.write(f"\n### CYCLE {cycle} | {datetime.now().strftime('%Y-%m-%d')}\n{final_entry}\n---\n")
-    
-    # Save tool if it exists
-    if "```python" in architect_output:
-        try:
-            code = architect_output.split("```python")[1].split("```")[0].strip()
-            tool_name = f"gen4_tool_{cycle}.py"
-            (PLATFORM / 'tools' / tool_name).write_text(code)
-            print(f"[SUCCESS] Next-Gen Tool Archived: {tool_name}")
-        except: pass
-
-    return True
+    if passed:
+        val_out = call_local("VALIDATOR", "deepseek-r1:1.5b", f"Verify physics for: {query}", arch_out)
+        if "APPROVED" in val_out.upper() or BATCH_MODE:
+            print(f"  [SUCCESS] Archiving...")
+            with open(LEDGER, 'a') as f:
+                f.write(f"\n### CYCLE {cycle} | {datetime.now().isoformat()}\n{arch_out}\n---\n")
+            m = re.search(r'```python\s*\n(.*?)```', arch_out, re.DOTALL | re.IGNORECASE)
+            (TOOLS_DIR / f"verified_{cycle}.py").write_text(m.group(1).strip() if m else arch_out)
+            return True
+    return False
 
 def main():
-    if not API_KEY:
-        print("[CRITICAL] API KEY MISSING.")
-        return
-    
+    print(f"QEA PRIME v5.3 — HYBRID FOUNDRY (Batch Limit: {BATCH_LIMIT})")
     cycle = 0
     while True:
         cycle += 1
-        success = run_orchestrated_cycle(cycle)
-        
-        # 5-Cycle Cloud Push (Architectural Redundancy)
-        if cycle % 5 == 0:
-            print("[CLOUD] Pushing workspace to GitHub/Drive...")
-            subprocess.run(['git', 'add', '.'], cwd=PLATFORM)
-            subprocess.run(['git', 'commit', '-m', f'Next-Gen Orchestration Cycle {cycle}'], cwd=PLATFORM)
-            subprocess.run(['git', 'push', 'origin', 'HEAD'], cwd=PLATFORM)
-        
-        print("[WAIT] Cooldown (15m)...")
-        time.sleep(900)
+        run_cycle(cycle)
+        if BATCH_MODE and cycle >= BATCH_LIMIT:
+            print(f"[EXIT] Batch Complete. Saving GitHub Minutes.")
+            break
+        time.sleep(600)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,28 @@
+OPENCLAW RESEARCH REPORT: radical pair Hamiltonian
+========================================
+
+[SemanticScholar] [TIER-2] Decoupling spin relaxation and chemical kinetics in radical pair magnetism: A master equation study
+ABSTRACT: A leading theory for the biological effects of low-intensity magnetic fields is the spin-chemical Radical Pair Mechanism. This mechanism is best described by the master equation for the density matrix...
+
+[SemanticScholar] [TIER-2] On algebraic properties of the sub-block of zero field hyperfine Hamiltonian with penultimate total spin projection for arbitrary hyperfine structure, and field dependence of radical pair recombination probability in the vicinity of zero field.
+ABSTRACT: Basic algebraic arguments demonstrate that the probability of radical pair recombination in low field for an arbitrary pair with Hamiltonian confined to Zeeman and isotropic hyperfine interactions con...
+
+[SemanticScholar] [TIER-2] On the anisotropic weak magnetic field effect in radical-pair reactions.
+ABSTRACT: For more than 60 years, scientists have been fascinated by the fact that magnetic fields even weaker than internal hyperfine fields can markedly affect spin-selective radical-pair reactions. This weak...
+
+[SemanticScholar] [TIER-2] Hamiltonian simulation of quantum beats in radical pairs undergoing thermal relaxation on near-term quantum computers.
+ABSTRACT: Quantum dynamics of the radical pair mechanism is a major driving force in quantum biology, materials science, and spin chemistry. The rich quantum physical underpinnings of the mechanism are determin...
+
+[SemanticScholar] [TIER-2] Radical Pair Dynamics
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:radical OR all:pair OR all:Hamiltonian&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] The Great Inequality In A Hamiltonian Planetary Theory
+
+[arXiv] [TIER-2] On radical and torsion theory in the category of S-acts
+
+[arXiv] [TIER-2] Hamiltonian engineering for quantum systems
+
+[arXiv] [TIER-2] Hamiltonian Simulation of Quantum Beats in Radical Pairs Undergoing Thermal Relaxation on Near-term Quantum Computers
+
+[arXiv] [TIER-2] Multimer Radical Ions and Electron/Hole Localization in Polyatomic Molecular Liquids: A critical review

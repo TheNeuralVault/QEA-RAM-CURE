@@ -1,20 +1,8 @@
-FMO routing quantum algorithm python
-dark state memory biological quantum code
-noise-assisted computation Lindblad implementation
-radical pair mechanism avian magnetoreception code
-ENAQT room temperature quantum transport math
-FeMoCo nitrogenase quantum tunneling python
-quantum coherence photosynthesis C++ implementation
-Bell state quantum circuit production code
-
-[photosystem II coherence]
-[cytochrome C spin-orbit]
-[spin-orbit coupling proteins]
-[quantum coherence cytochrome]
-[quantum decoherence density matrix]
-[quantum decoherence simulation code]
-quantum biology decoherence model
-FMO quantum coherence simulation
-FMO coherence 300K physiological
-MIT boundary quantum chaos FMO
-microtubule spintronic oscillator Beshkar
+FMO coherence 300K python code
+dark state memory quantum AI
+Lindblad biological transport
+MIT critical quantum chaos
+FeMoCo quantum tunneling
+radical pair Hamiltonian
+ENAQT noise-assisted
+microtubule spintronic

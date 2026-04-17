@@ -1,0 +1,28 @@
+OPENCLAW RESEARCH REPORT: MIT critical quantum chaos
+========================================
+
+[SemanticScholar] [TIER-2] Signatures of quantum chaos and fermionization in the incoherent transport of bosonic carriers in the Bose-Hubbard chain.
+ABSTRACT: We analyze the stationary current of Bose particles across the Bose-Hubbard chain connected to a battery, focusing on the effect of interparticle interactions. It is shown that the current magnitude d...
+
+[SemanticScholar] [TIER-2] Non-linearity and chaos in the kicked top
+ABSTRACT: Classical chaos arises from the inherent non-linearity of dynamical systems. However, quantum maps are linear; therefore, the definition of chaos is not straightforward. To address this, we study a qu...
+
+[SemanticScholar] [TIER-2] S-RMCSA: A Security-Aware Routing and Spectrum Assignment Framework with QKD and Physical-Layer Encryption in SDM-EONs
+ABSTRACT: We present S-RMCSA, a new security-aware routing and spectrum assignment framework for space-division multiplexing elastic optical networks (SDM-EONs). Unlike traditional approaches that focus only on...
+
+[SemanticScholar] [TIER-2] The Riemann-Liouville field as a H → 0 limit- sub, critical and super critical GMC, decompositions and explicit spectral expansions
+
+[SemanticScholar] [TIER-2] Entanglement with neutral atoms in the simulation of nonequilibrium dynamics of one-dimensional spin models
+ABSTRACT: Quantum entanglement is a key ingredient for quantum information processing with capabilities beyond that of classical computation. We study the generation and role of entanglement in the dynamics of ...
+
+[arXiv] [TIER-2] arXiv Query: search_query=all:MIT OR all:critical OR all:quantum OR all:chaos&amp;id_list=&amp;start=0&amp;max_results=5
+
+[arXiv] [TIER-2] Quantum Chaos &amp; Quantum Computers
+
+[arXiv] [TIER-2] Topological chaos, braiding and bifurcation of almost-cyclic sets
+
+[arXiv] [TIER-2] Loschmidt echo and scrambling of systematic errors in tomography -- a quantum signature of chaos
+
+[arXiv] [TIER-2] Quantum chaos and the holographic principle
+
+[arXiv] [TIER-2] Stable chaos
